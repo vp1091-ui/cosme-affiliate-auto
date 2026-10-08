@@ -15,6 +15,12 @@ def clean(s: str) -> str:
         s = s.replace(w, "うるおいケア")
     return s
 
+def short_name(s: str, limit: int = 48) -> str:
+    # SNS用: 【販促文言】除去→空白整理→短縮 (クリックされやすい形に)
+    s = re.sub(r"【[^】]*】", "", clean(s))
+    s = re.sub(r"\s+", " ", s).strip(" /|】")
+    return s if len(s) <= limit else s[:limit] + "…"
+
 ARTICLE_TPL = """# {kw} 比較 {ym}【自動更新】
 
 PR: 本記事はアフィリエイト広告を利用しています。
@@ -68,7 +74,7 @@ def main():
         # URLは絶対に切らない (切ると収益リンクが壊れる)。
         # XはURLをt.co短縮で一律23字換算するため、本文はその基準で280字に収める
         budget = 280 - 23 - len(tags) - len(tail) - 4
-        name = clean(p["name"])
+        name = short_name(p["name"])
         head = f"【自動更新】{name}\n{meta}"
         if len(head) > budget:
             name = name[:max(0, budget - len("【自動更新】\n" + meta) - 1)] + "…"
