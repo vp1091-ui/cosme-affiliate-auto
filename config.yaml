@@ -1,0 +1,39 @@
+site:
+  name: "コスメ自動比較ナビ"
+  url: "https://example.com"
+  description: "楽天・Amazonの人気コスメを自動で比較。価格・レビュー件数を毎日更新。"
+  affiliate_note: "当サイトはアフィリエイト広告を利用しています。"
+
+# 楽天ジャンルID: 100939 = 美容・コスメ・香水
+rakuten:
+  genre_id: "100939"
+  hits_per_keyword: 30
+  sort: "standard"  # 新APIでは +reviewCount がレビュー欠落を起こすため standard 推奨 (standard/+reviewAverage は可)
+  min_review_count: 10
+  min_review_average: 3.5
+
+keywords:
+  - 化粧水 敏感肌
+  - 美容液 ビタミンC
+  - クレンジング 毛穴
+  - 日焼け止め 敏感肌
+  - リップ 保湿 プチプラ
+  - ファンデーション カバー力
+  - シャンプー サロン
+  - ハンドクリーム 保湿
+
+amazon:
+  enabled: true
+  # PA-APIがなくても検索リンクで代替するのでサイトは止まらない
+  fallback_search: true
+  min_price: 500
+  max_price: 20000
+
+site_gen:
+  top_n: 50
+  output_dir: "public"
+
+sns:
+  # X無料枠(月1500件)を考慮して1日3件まで
+  max_posts_per_day: 3
+  hashtags: "#コスメ #プチプラ #美容垢さんと繋がりたい"

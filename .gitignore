@@ -1,0 +1,6 @@
+__pycache__/
+.env
+data/*.json
+!data/.gitkeep
+data/sns_queue/
+data/sns_done/

@@ -1,0 +1,33 @@
+name: daily-auto
+on:
+  schedule:
+    - cron: "0 21 * * *"  # JST 6:00 (UTC 21:00)
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - run: python src/run_all.py
+        env:
+          RAKUTEN_APP_ID: ${{ secrets.RAKUTEN_APP_ID }}
+          RAKUTEN_AFFILIATE_ID: ${{ secrets.RAKUTEN_AFFILIATE_ID }}
+          RAKUTEN_ACCESS_KEY: ${{ secrets.RAKUTEN_ACCESS_KEY }}
+          RAKUTEN_REFERER: ${{ secrets.RAKUTEN_REFERER }}
+          AMAZON_ACCESS_KEY: ${{ secrets.AMAZON_ACCESS_KEY }}
+          AMAZON_SECRET_KEY: ${{ secrets.AMAZON_SECRET_KEY }}
+          AMAZON_PARTNER_TAG: ${{ secrets.AMAZON_PARTNER_TAG }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+      - run: |
+          git config user.name "auto-bot"
+          git config user.email "auto-bot@example.com"
+          git add public
+          git add -f data/products.json || true
+          git diff --cached --quiet || git commit -m "auto update $(date -u +%F)"
+          git push || true
