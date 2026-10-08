@@ -1,5 +1,5 @@
 """SEO記事ひな形 + SNS投稿文を自動生成。薬機法NGワードを除去。"""
-import json, re, pathlib, datetime
+import json, re, os, pathlib, datetime
 import yaml
 
 BASE = pathlib.Path(__file__).resolve().parents[1]
@@ -58,13 +58,18 @@ def main():
 
     # SNS投稿文 (1日N件)
     picks = sorted(products, key=lambda x: -x.get("review_count", 0))[:CFG["sns"]["max_posts_per_day"]]
+    bundle = [f"# SNS原稿 {datetime.date.today().isoformat()}（コピペ用）", "", "X無料枠の範囲内 (1日3件) で自動生成。Xキー未設定の場合は以下を手動投稿。", ""]
     for p in picks:
         name = clean(p["name"][:55])
-        price = f"{p['price']:,}円" if p.get("price") else "価格はリンク先"
+        price = f'{p["price"]:,}円' if p.get("price") else "価格はリンク先"
         url = p["links"].get("rakuten") or p.get("url", "")
         text = f"【自動更新】{name}\n★{p.get('review_avg',0)}({p.get('review_count',0)}件) {price}\n{CFG['sns']['hashtags']}\n{url}\n#PR アフィリエイト広告を利用しています"
         # Xは140字目安に切り詰め + URLは別カウントなので本文120字に
         (QUEUE / f"{datetime.date.today().isoformat()}_product-{p['id']}.txt").write_text(text[:280], encoding="utf-8")
+        bundle += [f"## {name[:40]}", "", "```", text[:280], "```", f"商品ページ: {os.getenv('SITE_URL', CFG['site']['url']).rstrip('/')}/product-{p['id']}.html", ""]
+    sns_dir = BASE / "sns"
+    sns_dir.mkdir(exist_ok=True)
+    (sns_dir / f"{datetime.date.today().isoformat()}.md").write_text("\n".join(bundle), encoding="utf-8")
     print(f"[posts] 記事 {len(CFG['keywords'])}件 + SNS原稿 {len(picks)}件 生成")
 
 if __name__ == "__main__":

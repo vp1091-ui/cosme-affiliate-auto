@@ -21,6 +21,8 @@ def main():
     amz = json.loads((DATA / "amazon_items.json").read_text(encoding="utf-8")) if (DATA / "amazon_items.json").exists() else []
     rank = json.loads((DATA / "rakuten_ranking.json").read_text(encoding="utf-8")) if (DATA / "rakuten_ranking.json").exists() else []
     pool = rak + amz
+    # タグ無しAmazon検索リンク(収益にならない代替)は商品化も紐付けもしない
+    pool = [c for c in pool if not (c.get("source") == "amazon_fallback" and "tag=" not in (c.get("url") or ""))]
 
     seen, products = set(), []
     for it in sorted(pool, key=score, reverse=True):
