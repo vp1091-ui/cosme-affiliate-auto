@@ -4,3 +4,5 @@ data/*.json
 !data/.gitkeep
 data/sns_queue/
 data/sns_done/
+.wrangler/
+node_modules/
