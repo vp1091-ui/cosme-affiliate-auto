@@ -55,9 +55,14 @@ footer a{color:#ffd9e4}
 
 def esc(s): return html.escape(str(s or ""))
 
+def _is_real_amazon(url):
+    u = url or ""
+    # PA-APIの商品URL(/dp/)か紹介料タグ付きのみ本物。素の検索リンクは除外
+    return "amazon.co.jp" in u and ("/dp/" in u or "tag=" in u)
+
 def detect_sources(products):
     has_r = any((p.get("links", {}).get("rakuten") or (p.get("url", "") if p.get("source") == "rakuten" else "")) for p in products)
-    has_a = any(p.get("links", {}).get("amazon") for p in products)
+    has_a = any(_is_real_amazon(p.get("links", {}).get("amazon")) for p in products)
     if has_r and has_a:
         return "楽天・Amazon"
     if has_a:
@@ -71,7 +76,7 @@ def btns(p):
         b += f'<a class="btn r" href="{esc(lk["rakuten"])}" rel="nofollow sponsored noopener" target="_blank">楽天で最安値をチェック</a>'
     elif p.get("url") and p.get("source") == "rakuten":
         b += f'<a class="btn r" href="{esc(p["url"])}" rel="nofollow sponsored noopener" target="_blank">楽天で最安値をチェック</a>'
-    if lk.get("amazon"):
+    if lk.get("amazon") and _is_real_amazon(lk.get("amazon")):
         b += f'<a class="btn a" href="{esc(lk["amazon"])}" rel="nofollow sponsored noopener" target="_blank">Amazonでチェック</a>'
     return b
 
