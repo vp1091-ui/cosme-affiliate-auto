@@ -1,7 +1,7 @@
 site:
   name: "コスメ自動比較ナビ"
   url: "https://example.com"
-  description: "楽天・Amazonの人気コスメを自動で比較。価格・レビュー件数を毎日更新。"
+  description: "人気コスメをレビュー件数・評価・価格で自動比較。毎日更新。"
   affiliate_note: "当サイトはアフィリエイト広告を利用しています。"
 
 # 楽天ジャンルID: 100939 = 美容・コスメ・香水
