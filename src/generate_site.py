@@ -103,6 +103,10 @@ def card(p, i=None):
 
 def page(title, desc, body, extra_head="", canonical=""):
     canon = f'<link rel="canonical" href="{esc(canonical)}">' if canonical else ""
+    ads_cfg = CFG.get("ads", {})
+    ad_head = ""
+    if ads_cfg.get("adsense_client"):
+        ad_head = f'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={esc(ads_cfg["adsense_client"])}" crossorigin="anonymous"></script>'
     return f"""<!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)}</title>
@@ -110,12 +114,25 @@ def page(title, desc, body, extra_head="", canonical=""):
 <meta property="og:type" content="website"><meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{esc(canonical)}"><meta property="og:site_name" content="{esc(SITE_NAME)}">
-{canon}{extra_head}<style>{CSS}</style></head><body>
-<nav class="top"><div class="wrap"><a href="index.html">🏠 トップ</a><a href="ranking.html">👑 ランキング</a></div></nav>
+{canon}{ad_head}{extra_head}<style>{CSS}</style></head><body>
+<nav class="top"><div class="wrap"><a href="index.html">🏠 トップ</a><a href="ranking.html">👑 ランキング</a><a href="privacy.html">🔒 プライバシー</a><a href="about.html">ℹ️ 運営者</a></div></nav>
 <div class="wrap"><p class="pr">PR: 当サイトはアフィリエイト広告を利用しています。掲載価格・在庫は取得時点のもので変更される場合があります。化粧品の効果には個人差があります。</p></div>
 {body}
+{ad_block("article")}
 <footer><div class="wrap"><p>© {esc(SITE_NAME)} / 価格・レビューは毎日自動更新 (最終更新 {TODAY.isoformat()})</p>
+<p><a href="privacy.html">プライバシーポリシー</a> ｜ <a href="about.html">運営者情報・お問い合わせ</a></p>
 <p>効果・効能の断定的な表示はしていません。肌に合わない場合は使用を中止し専門医にご相談ください。</p></div></footer></body></html>"""
+
+def ad_block(kind):
+    """表示課金広告枠。ID未設定なら何も出さない"""
+    ads_cfg = CFG.get("ads", {})
+    client = ads_cfg.get("adsense_client", "")
+    slot = ads_cfg.get("adsense_slot_top" if kind == "top" else "adsense_slot_article", "")
+    if not (client and slot):
+        return ""
+    return f"""<div class="wrap"><div style="margin:20px 0;text-align:center">
+<ins class="adsbygoogle" style="display:block" data-ad-client="{esc(client)}" data-ad-slot="{esc(slot)}" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script>(adsbygoogle = window.adsbygoogle || []).push({{}});</script></div></div>"""
 
 def jsonld_itemlist(items, url):
     els = []
@@ -200,7 +217,32 @@ def main():
         related = sorted(related, key=lambda x: -x.get("review_count", 0))
         (OUT / f"product-{p['id']}.html").write_text(detail(p, src_label, related), encoding="utf-8")
 
-    urls = ["index.html", "ranking.html"] + cat_files + [f"product-{p['id']}.html" for p in products]
+    # 審査・信頼性用固定ページ
+    op = CFG["site"]
+    (OUT / "privacy.html").write_text(page(
+        f"プライバシーポリシー｜{SITE_NAME}",
+        f"{SITE_NAME}のプライバシーポリシー。広告配信・アクセス解析・Cookieについて。",
+        f"""<div class="wrap"><h1>プライバシーポリシー</h1>
+<h2 class="sec">広告の配信について</h2>
+<p>当サイトでは、第三者配信の広告サービス (Google AdSense等) を利用する場合があります。広告配信事業者は、ユーザーの興味に応じた広告を表示するためCookieを使用することがあります。Cookieを無効にする方法やGoogleポリシーについては <a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">Googleポリシーと規約</a> をご覧ください。</p>
+<h2 class="sec">アフィリエイトについて</h2>
+<p>当サイトは楽天アフィリエイト等のアフィリエイトプログラムに参加しています。商品購入時に販売店から紹介料を受け取る場合があります。価格・在庫は取得時点の情報です。</p>
+<h2 class="sec">アクセス解析について</h2>
+<p>サイト改善のためアクセス解析を利用する場合があります。データは匿名で収集されます。</p>
+<h2 class="sec">免責事項</h2>
+<p>掲載情報の正確性には努めますが保証しません。化粧品の効果には個人差があります。損害等の責任は負いかねます。</p>
+<p class="note">制定 {TODAY.isoformat()} / {esc(SITE_NAME)}</p></div>""",
+        "", f"{SITE_URL}/privacy.html"), encoding="utf-8")
+    (OUT / "about.html").write_text(page(
+        f"運営者情報・お問い合わせ｜{SITE_NAME}",
+        f"{SITE_NAME}の運営者情報とお問い合わせ先。",
+        f"""<div class="wrap"><h1>運営者情報・お問い合わせ</h1>
+<p>サイト名: {esc(SITE_NAME)} / 運営: {esc(op.get('operator', ''))}</p>
+<p>連絡先: {esc(op.get('contact', ''))}</p>
+<p>内容: {esc(src_label)}の人気コスメを自動集計し、レビュー・価格比較を毎日更新しています。</p></div>""",
+        "", f"{SITE_URL}/about.html"), encoding="utf-8")
+
+    urls = ["index.html", "ranking.html", "privacy.html", "about.html"] + cat_files + [f"product-{p['id']}.html" for p in products]
     sm = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
     for u in urls:
         sm += f"<url><loc>{SITE_URL}/{u}</loc><lastmod>{TODAY.isoformat()}</lastmod></url>"

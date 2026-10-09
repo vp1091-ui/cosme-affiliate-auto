@@ -3,6 +3,14 @@ site:
   url: "https://example.com"
   description: "人気コスメをレビュー件数・評価・価格で自動比較。毎日更新。"
   affiliate_note: "当サイトはアフィリエイト広告を利用しています。"
+  operator: "みてコス運営"
+  contact: "お問い合わせはX(@mitekosu 予定)または後日設置のフォームまで"
+
+# 表示課金広告 (貼るだけで閲覧連動収益)。ID設定後に自動挿入。未設定は非表示
+ads:
+  adsense_client: ""   # 例: ca-pub-1234567890123456 (AdSense審査通過後に設定)
+  adsense_slot_top: "" # トップ・カテゴリ用スロットID
+  adsense_slot_article: ""  # 商品詳細用スロットID
 
 # 楽天ジャンルID: 100939 = 美容・コスメ・香水
 rakuten:
