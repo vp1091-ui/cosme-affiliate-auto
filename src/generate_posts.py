@@ -1,5 +1,5 @@
 """SEO記事ひな形 + SNS投稿文を自動生成。薬機法NGワードを除去。"""
-import json, re, os, pathlib, datetime
+import json, re, os, random, pathlib, datetime
 import yaml
 
 JST = datetime.timezone(datetime.timedelta(hours=9))
@@ -67,8 +67,11 @@ def main():
         safe = re.sub(r"[\\/:*?\"<>| ]+", "_", kw)[:40]
         (art_dir / f"{safe}.md").write_text(md, encoding="utf-8")
 
-    # SNS投稿文 (1日N件)
-    picks = sorted(products, key=lambda x: -x.get("review_count", 0))[:CFG["sns"]["max_posts_per_day"]]
+    # SNS投稿文 (1日N件): 日付シードでランキング上位30件からランダム抽出 (毎日別商品・日中は固定)
+    ranked = sorted(products, key=lambda x: -x.get("review_count", 0))
+    rng = random.Random(today().isoformat())
+    pool = ranked[:30] if len(ranked) > 30 else ranked
+    picks = rng.sample(pool, min(len(pool), CFG["sns"]["max_posts_per_day"]))
     bundle = [f"# SNS原稿 {today().isoformat()}（コピペ用）", "", "X無料枠の範囲内 (1日3件) で自動生成。Xキー未設定の場合は以下を手動投稿。", ""]
     for p in picks:
         price = f'{p["price"]:,}円' if p.get("price") else "価格はリンク先"
@@ -80,10 +83,10 @@ def main():
         # XはURLをt.co短縮で一律23字換算するため、本文はその基準で280字に収める
         budget = 280 - 23 - len(tags) - len(tail) - 4
         name = short_name(p["name"])
-        head = f"【自動更新】{name}\n{meta}"
+        head = f"{name}\n{meta}"
         if len(head) > budget:
-            name = name[:max(0, budget - len("【自動更新】\n" + meta) - 1)] + "…"
-            head = f"【自動更新】{name}\n{meta}"
+            name = name[:max(0, budget - len("\n" + meta) - 1)] + "…"
+            head = f"{name}\n{meta}"
         text = f"{head}\n{tags}\n{url}\n{tail}"
         (QUEUE / f"{today().isoformat()}_product-{p['id']}.txt").write_text(text, encoding="utf-8")
         bundle += [f"## {clean(p['name'])[:40]}", "", "```", text, "```", f"商品ページ: {os.getenv('SITE_URL', CFG['site']['url']).rstrip('/')}/product-{p['id']}.html", ""]
