@@ -2,6 +2,11 @@
 import json, re, os, pathlib, datetime
 import yaml
 
+JST = datetime.timezone(datetime.timedelta(hours=9))
+
+def today():
+    return datetime.datetime.now(JST).date()
+
 BASE = pathlib.Path(__file__).resolve().parents[1]
 CFG = yaml.safe_load(open(BASE / "config.yaml", encoding="utf-8"))
 DATA = BASE / "data"

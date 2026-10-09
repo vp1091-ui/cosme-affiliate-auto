@@ -18,7 +18,8 @@ OUT = BASE / CFG["site_gen"]["output_dir"]
 import os
 SITE_URL = os.getenv("SITE_URL", CFG["site"]["url"]).rstrip("/")
 SITE_NAME = os.getenv("SITE_NAME", CFG["site"]["name"])
-TODAY = datetime.date.today()
+JST = datetime.timezone(datetime.timedelta(hours=9))
+TODAY = datetime.datetime.now(JST).date()  # runnerはUTCのためJSTに補正
 YM = TODAY.strftime("%Y年%m月")
 
 CSS = """
