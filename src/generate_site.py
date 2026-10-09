@@ -99,6 +99,17 @@ def clean_desc(s: str) -> str:
         s = s.replace(w, "うるおいケア")
     return s
 
+def excerpt(s: str, limit: int = 400) -> str:
+    # 文の途中で切らない: 制限内で最後の「。」まで戻る
+    s = clean_desc(s)
+    if len(s) <= limit:
+        return s
+    cut = s[:limit]
+    pos = cut.rfind("。")
+    if pos > limit * 0.4:
+        return cut[:pos + 1]
+    return cut + "…"
+
 # カテゴリ別の選び方1行 (共通3ポイントに加える)
 CAT_TIP = {
     "化粧水": "保湿成分・アルコールの有無・詰め替えの有無を確認",
@@ -170,7 +181,7 @@ def jsonld_itemlist(items, url):
 
 def detail(p, src_label, related, rank_in_cat=0, cat_total=0):
     price = f'{p["price"]:,}円' if p.get("price") else "価格はリンク先で確認"
-    desc = clean_desc(p.get("caption", ""))[:400]
+    desc = excerpt(p.get("caption", ""))
     rank_line = f"「{esc(p.get('keyword',''))}」カテゴリで{rank_in_cat}位／{cat_total}商品中" if rank_in_cat else ""
     lk = p.get("links", {}).get("rakuten") or (p.get("url", "") if p.get("source") == "rakuten" else "")
     review_btn = f'<a class="btn r" href="{esc(lk)}" rel="nofollow sponsored noopener" target="_blank">楽天で口コミ・レビューを見る</a>' if lk else ""
@@ -188,7 +199,7 @@ def detail(p, src_label, related, rank_in_cat=0, cat_total=0):
 <div class="detail"><div>{'<img src="'+esc(p['image'])+'" alt="'+esc(p['name'])+'">' if p.get('image') else ''}</div>
 <div><p>販売店: {esc(p.get('shop',''))} (取扱: {esc(src_label)})</p>
 <div class="cta">{btns(p)}<p class="note">ボタン先の最新価格・在庫・レビューをご確認ください</p></div></div></div>
-<h2 class="sec">この商品のデータ</h2>
+<h2 class="sec">この商品について</h2>
 <ul><li>{rank_line}</li><li>レビュー {esc(p.get('review_count',0))}件・評価★{esc(p.get('review_avg',0))}</li>
 <li>参考価格 {esc(price)} / 販売店 {esc(p.get('shop',''))}</li></ul>
 <div class="cta">{review_btn}<p class="note">良い評価・厳しい評価の内訳は、楽天のレビュー欄 (高評価順・低評価順に並替可) で確認できます</p></div>
