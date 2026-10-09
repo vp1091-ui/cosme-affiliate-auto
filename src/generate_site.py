@@ -89,6 +89,34 @@ def stars(avg):
     full = int(v)
     return "★" * full + "☆" * (5 - full)
 
+# 薬機法NG (断定・誇大)。商品説明の該当箇所は言い換え
+NG_WORDS = ["治る", "治す", "シミが消える", "シワが消える", "痩せる", "美白になる",
+            "アトピーが治る", "効果絶大", "100%効く", "完全無添加で安心"]
+
+def clean_desc(s: str) -> str:
+    s = s or ""
+    for w in NG_WORDS:
+        s = s.replace(w, "うるおいケア")
+    return s
+
+# カテゴリ別の選び方1行 (共通3ポイントに加える)
+CAT_TIP = {
+    "化粧水": "保湿成分・アルコールの有無・詰め替えの有無を確認",
+    "美容液": "主成分と濃度表記・朝用か夜用か・衛生的な容器かを確認",
+    "クレンジング": "普段のメイク濃さとの相性・W洗顔要否・マツエク対応を確認",
+    "日焼け止め": "SPF/PA値・白浮きの有無・石けんで落とせるかを確認",
+    "リップ": "UV対応・ティントか・保湿の持続を確認",
+    "ファンデーション": "色展開の豊富さ・崩れにくさ・石けん落ち対応を確認",
+    "シャンプー": "アミノ酸系か・シリコンの有無・詰替でコスパ比較",
+    "ハンドクリーム": "ベタつき・香りの強さ・持ち歩きサイズかを確認",
+}
+
+def cat_tip(keyword: str) -> str:
+    for k, v in CAT_TIP.items():
+        if k in (keyword or ""):
+            return v
+    return "容量あたり価格と使用量目安でコスパ比較"
+
 def rank_badge(i):
     cls = f"r{i}" if i <= 3 else ""
     return f'<span class="rank {cls}">{i}位</span>'
@@ -140,8 +168,12 @@ def jsonld_itemlist(items, url):
         els.append({"@type": "ListItem", "position": i, "url": f"{url}/product-{p['id']}.html", "name": p["name"][:80]})
     return '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@type": "ItemList", "itemListElement": els}, ensure_ascii=False) + "</script>"
 
-def detail(p, src_label, related):
+def detail(p, src_label, related, rank_in_cat=0, cat_total=0):
     price = f'{p["price"]:,}円' if p.get("price") else "価格はリンク先で確認"
+    desc = clean_desc(p.get("caption", ""))[:400]
+    rank_line = f"「{esc(p.get('keyword',''))}」カテゴリで{rank_in_cat}位／{cat_total}商品中" if rank_in_cat else ""
+    lk = p.get("links", {}).get("rakuten") or (p.get("url", "") if p.get("source") == "rakuten" else "")
+    review_btn = f'<a class="btn r" href="{esc(lk)}" rel="nofollow sponsored noopener" target="_blank">楽天で口コミ・レビューを見る</a>' if lk else ""
     ld = {"@context": "https://schema.org", "@type": "Product", "name": p["name"][:100],
           "image": p.get("image", ""), "description": (p.get("caption") or "")[:200],
           "offers": {"@type": "Offer", "priceCurrency": "JPY", "price": p.get("price", 0), "availability": "https://schema.org/InStock"}}
@@ -156,8 +188,15 @@ def detail(p, src_label, related):
 <div class="detail"><div>{'<img src="'+esc(p['image'])+'" alt="'+esc(p['name'])+'">' if p.get('image') else ''}</div>
 <div><p>販売店: {esc(p.get('shop',''))} (取扱: {esc(src_label)})</p>
 <div class="cta">{btns(p)}<p class="note">ボタン先の最新価格・在庫・レビューをご確認ください</p></div></div></div>
-<h2 class="sec">失敗しない選び方 (3ポイント)</h2>
-<ul><li>肌質・成分表示を確認し、初めてはパッチテストを</li><li>レビューは件数と低評価理由の両方をチェック</li><li>容量あたり価格でコスパ比較 ({esc(src_label)}横断がお得)</li></ul>
+<h2 class="sec">この商品のデータ</h2>
+<ul><li>{rank_line}</li><li>レビュー {esc(p.get('review_count',0))}件・評価★{esc(p.get('review_avg',0))}</li>
+<li>参考価格 {esc(price)} / 販売店 {esc(p.get('shop',''))}</li></ul>
+<div class="cta">{review_btn}<p class="note">良い評価・厳しい評価の内訳は、楽天のレビュー欄 (高評価順・低評価順に並替可) で確認できます</p></div>
+<h2 class="sec">ショップによる商品説明</h2><p>{esc(desc) if desc else '商品説明はリンク先の販売ページでご確認ください。'}</p>
+<p class="note">出典: 販売店の掲載文を自動引用 (薬機法に配慮し一部言い換えあり)</p>
+<h2 class="sec">失敗しない選び方</h2>
+<ul><li>{esc(cat_tip(p.get('keyword','')))}</li>
+<li>肌質・成分表示を確認し、初めてはパッチテストを</li><li>レビューは件数と低評価理由の両方をチェック</li></ul>
 <h2 class="sec">同じ悩みの人気商品</h2><div class="cards">{rel}</div></div>"""
     head = '<script type="application/ld+json">' + json.dumps(ld, ensure_ascii=False) + "</script>"
     return page(f"{p['name'][:50]}の口コミ・最安値 | {SITE_NAME}",
@@ -213,9 +252,10 @@ def main():
         cat_files.append(f"cat-{i}.html")
 
     for p in products:
-        related = [r for r in by_kw.get(p.get("keyword", ""), []) if r["id"] != p["id"]]
-        related = sorted(related, key=lambda x: -x.get("review_count", 0))
-        (OUT / f"product-{p['id']}.html").write_text(detail(p, src_label, related), encoding="utf-8")
+        cat_all = sorted(by_kw.get(p.get("keyword", ""), []), key=lambda x: -x.get("review_count", 0))
+        pos = next((j + 1 for j, r in enumerate(cat_all) if r["id"] == p["id"]), 0)
+        related = [r for r in cat_all if r["id"] != p["id"]]
+        (OUT / f"product-{p['id']}.html").write_text(detail(p, src_label, related, pos, len(cat_all)), encoding="utf-8")
 
     # 審査・信頼性用固定ページ
     op = CFG["site"]
