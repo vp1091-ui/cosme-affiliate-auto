@@ -236,8 +236,18 @@ def main():
 <p>{esc(src_label)}の人気コスメをレビュー件数・評価・価格で自動比較</p>
 <p>全{len(products)}商品掲載中・口コミ合計{sum(p.get('review_count',0) for p in products):,}件を集計</p>
 <span class="date">📅 {YM}版・毎日6時自動更新</span></div></div>"""
+    # 悩み別に5件ずつランダム表示 (日付シードで日替わり・日中は固定)
+    import random as _random
+    drng = _random.Random(TODAY.isoformat())
+    sections = []
+    for i, (kw, v) in enumerate(by_kw.items()):
+        v_sorted = sorted(v, key=lambda x: -x.get("review_count", 0))
+        picks = drng.sample(v_sorted, min(5, len(v_sorted)))
+        sections.append(f"""<h2 class="sec">{esc(kw)} ピックアップ <a class="chip" href="cat-{i}.html">👑 ランキングを見る →</a></h2>
+<div class="cards">{''.join(card(p) for p in picks)}</div>""")
     index_body = hero + f"""<div class="wrap"><h2 class="sec">悩み別に探す</h2><div class="chips">{chips}</div>
-<h2 class="sec">👑 今週の人気ランキング TOP{len(top)}</h2><div class="cards">{''.join(card(p, i+1) for i, p in enumerate(top))}</div></div>"""
+{''.join(sections)}
+<p><a href="ranking.html">👑 総合ランキング TOP{len(top)}はこちら →</a></p></div>"""
     (OUT / "index.html").write_text(
         page(f"{SITE_NAME}｜{src_label}コスメの口コミ・価格比較【{YM}版】",
              f"{src_label}の人気コスメ{len(products)}商品をレビュー・価格で自動比較。毎日更新。",
