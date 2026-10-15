@@ -19,6 +19,18 @@ rakuten:
   sort: "standard"  # 新APIでは +reviewCount がレビュー欠落を起こすため standard 推奨 (standard/+reviewAverage は可)
   min_review_count: 10
   min_review_average: 3.5
+  # 件数が少ないカテゴリの救済: プチプラ系は緩和条件で追加取得
+  petit_min_review_count: 5
+  petit_min_review_average: 3.0
+
+# 表示カテゴリは keywords のまま。取得だけ水増ししたい場合ここに列挙
+# 例: "リップ 保湿 プチプラ" で検索しても4件しか無いので、別クエリの結果も同じラベルで統合する
+extra_queries:
+  "リップ 保湿 プチプラ":
+    - "リップ プチプラ"
+    - "口紅 プチプラ"
+    - "リップクリーム プチプラ"
+    - "リップティント プチプラ"
 
 keywords:
   - 化粧水 敏感肌
@@ -40,6 +52,11 @@ amazon:
 site_gen:
   top_n: 50
   output_dir: "public"
+  # 代り映え対策: 高評価プールから日替わりランダムで表示
+  high_rating_min_avg: 4.0
+  high_rating_min_count: 10
+  daily_pick_per_category: 5
+  daily_pick_top: 8
 
 sns:
   # X無料枠(月1500件)を考慮して1日3件まで

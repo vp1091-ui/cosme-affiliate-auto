@@ -154,7 +154,7 @@ def page(title, desc, body, extra_head="", canonical=""):
 <meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{esc(canonical)}"><meta property="og:site_name" content="{esc(SITE_NAME)}">
 {canon}{ad_head}{extra_head}<style>{CSS}</style></head><body>
-<nav class="top"><div class="wrap"><a href="index.html">🏠 トップ</a><a href="ranking.html">👑 ランキング</a><a href="privacy.html">🔒 プライバシー</a><a href="about.html">ℹ️ 運営者</a></div></nav>
+<nav class="top"><div class="wrap"><a href="index.html">🏠 トップ</a><a href="ranking.html">👑 ランキング</a><a href="privacy.html">🔒 プライバシー</a><a href="about.html">ℹ️ サイトについて</a></div></nav>
 <div class="wrap"><p class="pr">PR: 当サイトはアフィリエイト広告を利用しています。掲載価格・在庫は取得時点のもので変更される場合があります。化粧品の効果には個人差があります。</p></div>
 {body}
 {ad_block("article")}
@@ -235,40 +235,69 @@ def main():
     hero = f"""<div class="hero"><div class="wrap"><h1>💄 {esc(SITE_NAME)}</h1>
 <p>{esc(src_label)}の人気コスメをレビュー件数・評価・価格で自動比較</p>
 <p>全{len(products)}商品掲載中・口コミ合計{sum(p.get('review_count',0) for p in products):,}件を集計</p>
-<span class="date">📅 {YM}版・毎日6時自動更新</span></div></div>"""
-    # 悩み別に5件ずつランダム表示 (日付シードで日替わり・日中は固定)
+<span class="date">📅 {YM}版・毎日6時自動更新</span><br>
+<span style="font-size:.9em">初めての方は <a href="about.html" style="color:#fff;font-weight:bold">サイトについて →</a> をご覧ください</span></div></div>"""
+    # 代り映え対策: 高評価プールから日替わりランダム表示 (日付シードで日中は固定)
     import random as _random
     drng = _random.Random(TODAY.isoformat())
+    sg = CFG.get("site_gen", {})
+    min_avg = float(sg.get("high_rating_min_avg", 4.0))
+    min_cnt = int(sg.get("high_rating_min_count", 10))
+    per_cat = int(sg.get("daily_pick_per_category", 5))
+    top_pick_n = int(sg.get("daily_pick_top", 8))
+
+    def high_pick(items, n):
+        high = [p for p in items if (p.get("review_avg", 0) or 0) >= min_avg and (p.get("review_count", 0) or 0) >= min_cnt]
+        if len(high) >= n:
+            return drng.sample(high, n)
+        # 不足分はレビュー件数上位から補完 (重複なし)
+        rest = [p for p in sorted(items, key=lambda x: -x.get("review_count", 0)) if p not in high]
+        need = n - len(high)
+        extra = drng.sample(rest, min(need, len(rest))) if rest else []
+        combined = high + extra
+        return drng.sample(combined, min(n, len(combined))) if len(combined) > n else combined
+
+    all_high = high_pick(products, min(top_pick_n, len(products)))
     sections = []
     for i, (kw, v) in enumerate(by_kw.items()):
-        v_sorted = sorted(v, key=lambda x: -x.get("review_count", 0))
-        picks = drng.sample(v_sorted, min(5, len(v_sorted)))
-        sections.append(f"""<h2 class="sec">{esc(kw)} ピックアップ <a class="chip" href="cat-{i}.html">👑 ランキングを見る →</a></h2>
+        picks = high_pick(v, min(per_cat, len(v)))
+        sections.append(f"""<h2 class="sec">{esc(kw)} ピックアップ <a class="chip" href="cat-{i}.html">👑 ランキング・高評価ランダムを見る →</a></h2>
+<p class="note">★{min_avg}以上・レビュー{min_cnt}件以上の高評価から日替わりで{len(picks)}件表示 (詳しくは <a href="about.html">サイトについて →</a>)</p>
 <div class="cards">{''.join(card(p) for p in picks)}</div>""")
     index_body = hero + f"""<div class="wrap"><h2 class="sec">悩み別に探す</h2><div class="chips">{chips}</div>
+<h2 class="sec">✨ 今日の高評価ピックアップ (日替わり)</h2>
+<p class="note">評価★{min_avg}以上の人気商品からランダム表示。毎日変わります。</p>
+<div class="cards">{''.join(card(p) for p in all_high)}</div>
 {''.join(sections)}
-<p><a href="ranking.html">👑 総合ランキング TOP{len(top)}はこちら →</a></p></div>"""
+<p><a href="ranking.html">👑 総合ランキング・今日のピックアップはこちら →</a></p>
+<p><a href="about.html">ℹ️ サイトについて・運営者情報はこちら →</a></p></div>"""
     (OUT / "index.html").write_text(
         page(f"{SITE_NAME}｜{src_label}コスメの口コミ・価格比較【{YM}版】",
              f"{src_label}の人気コスメ{len(products)}商品をレビュー・価格で自動比較。毎日更新。",
              index_body, jsonld_itemlist(top, SITE_URL), f"{SITE_URL}/index.html"), encoding="utf-8")
 
     rank_sorted = sorted(products, key=lambda x: -x.get("review_count", 0))[:top_n]
+    rank_pick = high_pick(products, min(8, len(products)))
     (OUT / "ranking.html").write_text(
         page(f"コスメ人気ランキング【{YM}版】レビュー件数順｜{SITE_NAME}",
              f"レビュー件数で集計したコスメランキングTOP{len(rank_sorted)}。{src_label}横断・毎日更新。",
-             f"""<div class="hero"><div class="wrap"><h1>👑 コスメ人気ランキング</h1><p>レビュー件数順・{YM}版・毎日自動更新</p></div></div>
-<div class="wrap"><div class="cards">{''.join(card(p, i+1) for i, p in enumerate(rank_sorted))}</div></div>""",
+             f"""<div class="hero"><div class="wrap"><h1>👑 コスメ人気ランキング</h1><p>レビュー件数順・{YM}版・毎日自動更新</p><p style="font-size:.9em"><a href="about.html" style="color:#fff">集計方法はサイトについて →</a></p></div></div>
+<div class="wrap"><h2 class="sec">✨ 今日の高評価ランダム (日替わり)</h2><p class="note">★{min_avg}以上からランダムで表示。ランキング固定化による代り映えの無さを解消します。</p><div class="cards">{''.join(card(p) for p in rank_pick)}</div>
+<h2 class="sec">👑 総合ランキング TOP{len(rank_sorted)}</h2><div class="cards">{''.join(card(p, i+1) for i, p in enumerate(rank_sorted))}</div>
+<p><a href="about.html">ℹ️ サイトについて・運営者情報はこちら →</a></p></div>""",
              jsonld_itemlist(rank_sorted, SITE_URL), f"{SITE_URL}/ranking.html"), encoding="utf-8")
 
     cat_files = []
     for i, (kw, v) in enumerate(by_kw.items()):
         v_sorted = sorted(v, key=lambda x: -x.get("review_count", 0))
+        cat_pick = high_pick(v, min(5, len(v)))
         (OUT / f"cat-{i}.html").write_text(
             page(f"{kw} おすすめ{len(v_sorted)}選【{YM}版】口コミ・価格比較｜{SITE_NAME}",
                  f"{kw}の人気商品をレビュー件数・評価・価格で比較。{src_label}横断・毎日更新。",
                  f"""<div class="hero"><div class="wrap"><h1>{esc(kw)} おすすめ</h1><p>レビュー件数順・{len(v_sorted)}商品・{YM}版</p></div></div>
-<div class="wrap"><p><a href="index.html">← トップへ</a></p><div class="cards">{''.join(card(p, j+1) for j, p in enumerate(v_sorted))}</div></div>""",
+<div class="wrap"><p><a href="index.html">← トップへ</a> ｜ <a href="about.html">サイトについて →</a></p>
+<h2 class="sec">✨ 高評価ランダムピックアップ (日替わり)</h2><div class="cards">{''.join(card(p) for p in cat_pick)}</div>
+<h2 class="sec">👑 {esc(kw)} ランキング全{len(v_sorted)}件</h2><div class="cards">{''.join(card(p, j+1) for j, p in enumerate(v_sorted))}</div></div>""",
                  jsonld_itemlist(v_sorted, SITE_URL), f"{SITE_URL}/cat-{i}.html"), encoding="utf-8")
         cat_files.append(f"cat-{i}.html")
 
@@ -295,12 +324,19 @@ def main():
 <p class="note">制定 {TODAY.isoformat()} / {esc(SITE_NAME)}</p></div>""",
         "", f"{SITE_URL}/privacy.html"), encoding="utf-8")
     (OUT / "about.html").write_text(page(
-        f"運営者情報・お問い合わせ｜{SITE_NAME}",
-        f"{SITE_NAME}の運営者情報とお問い合わせ先。",
-        f"""<div class="wrap"><h1>運営者情報・お問い合わせ</h1>
+        f"サイトについて・運営者情報｜{SITE_NAME}",
+        f"{SITE_NAME}のサイト概要・運営者情報とお問い合わせ先。",
+        f"""<div class="wrap"><h1>サイトについて</h1>
+<p>{esc(SITE_NAME)}は、{esc(src_label)}の人気コスメをレビュー件数・評価・価格で自動比較するサイトです。毎日6時に自動更新しています。</p>
+<h2 class="sec">選定・表示方法</h2>
+<ul><li>楽天市場API等から取得し、レビュー件数と評価を基準に掲載</li>
+<li>ランキング固定化による代り映えの無さを避けるため、高評価 (★{min_avg}以上) から日替わりランダムでピックアップ表示</li>
+<li>カテゴリ別ページでは上部に日替わり枠 + 下部にランキング全件を併載</li></ul>
+<h2 class="sec">運営者情報・お問い合わせ</h2>
 <p>サイト名: {esc(SITE_NAME)} / 運営: {esc(op.get('operator', ''))}</p>
 <p>連絡先: {esc(op.get('contact', ''))}</p>
-<p>内容: {esc(src_label)}の人気コスメを自動集計し、レビュー・価格比較を毎日更新しています。</p></div>""",
+<p>内容: {esc(src_label)}の人気コスメを自動集計し、レビュー・価格比較を毎日更新しています。</p>
+<p><a href="index.html">← トップへ戻る</a></p></div>""",
         "", f"{SITE_URL}/about.html"), encoding="utf-8")
 
     urls = ["index.html", "ranking.html", "privacy.html", "about.html"] + cat_files + [f"product-{p['id']}.html" for p in products]

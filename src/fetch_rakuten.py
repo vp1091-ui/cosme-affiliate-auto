@@ -53,44 +53,56 @@ def fetch_keyword(keyword, hits=30):
     if not APP_ID:
         print("[rakuten] RAKUTEN_APP_ID 未設定 -> ダミーでスキップ")
         return []
-    try:
-        j = rakuten_get(SEARCH_URL, {
-            "keyword": keyword,
-            "hits": hits,
-            "sort": CFG["rakuten"].get("sort", "+reviewCount"),
-            "genreId": CFG["rakuten"].get("genre_id", "100939"),
-            "imageFlag": 1,
-            "reviewFlag": 1,
-        })
-    except Exception as e:
-        print(f"[rakuten] {keyword} 失敗: {_mask(e)}")
-        return []
-    items = []
-    for it in j.get("Items", []):
-        d = it["Item"]
+    # プチプラ系は件数確保のため条件緩和 + 別クエリ統合
+    is_petit = "プチプラ" in keyword
+    min_rc = CFG["rakuten"].get("petit_min_review_count", 5) if is_petit else CFG["rakuten"]["min_review_count"]
+    min_ra = CFG["rakuten"].get("petit_min_review_average", 3.0) if is_petit else CFG["rakuten"]["min_review_average"]
+    queries = [keyword] + (CFG.get("extra_queries", {}) or {}).get(keyword, [])
+    seen_url, items = set(), []
+    for q in queries:
         try:
-            rc = int(float(d.get("reviewCount", 0) or 0))
-            ra = float(d.get("reviewAverage", 0) or 0)
-        except Exception:
-            rc, ra = 0, 0.0
-        if rc < CFG["rakuten"]["min_review_count"]:
+            j = rakuten_get(SEARCH_URL, {
+                "keyword": q,
+                "hits": hits,
+                "sort": CFG["rakuten"].get("sort", "+reviewCount"),
+                "genreId": CFG["rakuten"].get("genre_id", "100939"),
+                "imageFlag": 1,
+                "reviewFlag": 1,
+            })
+        except Exception as e:
+            print(f"[rakuten] {q} 失敗: {_mask(e)}")
             continue
-        if ra < CFG["rakuten"]["min_review_average"]:
-            continue
-        items.append({
-            "source": "rakuten",
-            "keyword": keyword,
-            "name": d.get("itemName", ""),
-            "price": int(d.get("itemPrice", 0) or 0),
-            "review_count": rc,
-            "review_avg": ra,
-            "shop": d.get("shopName", ""),
-            "url": d.get("affiliateUrl") or d.get("itemUrl", ""),
-            "image": (d.get("mediumImageUrls") or [{"imageUrl": ""}])[0]["imageUrl"],
-            "caption": d.get("itemCaption", "")[:500],
-            "jan": "",
-        })
-    time.sleep(2)  # 新APIのレート制限配慮
+        for it in j.get("Items", []):
+            d = it["Item"]
+            try:
+                rc = int(float(d.get("reviewCount", 0) or 0))
+                ra = float(d.get("reviewAverage", 0) or 0)
+            except Exception:
+                rc, ra = 0, 0.0
+            if rc < min_rc:
+                continue
+            if ra < min_ra:
+                continue
+            url = d.get("affiliateUrl") or d.get("itemUrl", "")
+            if url in seen_url:
+                continue
+            seen_url.add(url)
+            items.append({
+                "source": "rakuten",
+                "keyword": keyword,  # 表示カテゴリは元のラベルに集約
+                "name": d.get("itemName", ""),
+                "price": int(d.get("itemPrice", 0) or 0),
+                "review_count": rc,
+                "review_avg": ra,
+                "shop": d.get("shopName", ""),
+                "url": url,
+                "image": (d.get("mediumImageUrls") or [{"imageUrl": ""}])[0]["imageUrl"],
+                "caption": d.get("itemCaption", "")[:500],
+                "jan": "",
+            })
+        time.sleep(2)  # 新APIのレート制限配慮
+    if is_petit:
+        print(f"[rakuten] {keyword}: {len(items)}件 (緩和条件 rc>={min_rc} ra>={min_ra} +追加クエリ{len(queries)-1}件)")
     return items
 
 def fetch_ranking():
