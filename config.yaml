@@ -8,7 +8,7 @@ site:
 
 # 表示課金広告 (貼るだけで閲覧連動収益)。ID設定後に自動挿入。未設定は非表示
 ads:
-  adsense_client: ""   # 例: ca-pub-1234567890123456 (AdSense審査通過後に設定)
+  adsense_client: "ca-pub-4323706980092633"   # AdSense審査用コード (headに自動挿入)
   adsense_slot_top: "" # トップ・カテゴリ用スロットID
   adsense_slot_article: ""  # 商品詳細用スロットID
 

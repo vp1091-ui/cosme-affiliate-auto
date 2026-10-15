@@ -351,6 +351,11 @@ def main():
     rss += "</channel></rss>"
     (OUT / "rss.xml").write_text(rss, encoding="utf-8")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n", encoding="utf-8")
+    # AdSense: ads.txt (再生成で消えないよう毎回出力。client未設定なら何もしない)
+    _client = (CFG.get("ads", {}) or {}).get("adsense_client", "")
+    _m = re.search(r"pub-\d+", _client or "")
+    if _m:
+        (OUT / "ads.txt").write_text(f"google.com, {_m.group(0)}, DIRECT, f08c47fec0942fa0\n", encoding="utf-8")
     print(f"[site] 生成完了: {len(products)}商品 + カテゴリ{len(cat_files)}頁 -> {OUT}")
 
 if __name__ == "__main__":
