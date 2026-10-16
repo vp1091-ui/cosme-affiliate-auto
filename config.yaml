@@ -4,7 +4,7 @@ site:
   description: "人気コスメをレビュー件数・評価・価格で自動比較。毎日更新。"
   affiliate_note: "当サイトはアフィリエイト広告を利用しています。"
   operator: "みてコス運営"
-  contact: "お問い合わせはX(@mitekosu 予定)または後日設置のフォームまで"
+  contact: "お問い合わせはX(@mitekosu)DMまで"
 
 # 表示課金広告 (貼るだけで閲覧連動収益)。ID設定後に自動挿入。未設定は非表示
 ads:
