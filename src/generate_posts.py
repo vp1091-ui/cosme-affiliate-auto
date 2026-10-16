@@ -81,13 +81,16 @@ def main():
         meta = f"★{p.get('review_avg',0)}({p.get('review_count',0)}件) {price}"
         # URLは絶対に切らない (切ると収益リンクが壊れる)。
         # XはURLをt.co短縮で一律23字換算するため、本文はその基準で280字に収める
-        budget = 280 - 23 - len(tags) - len(tail) - 4
+        # 商品URL + サイトURLの2件分を23字換算で確保し、サイト誘導CTAを追加
+        site = os.getenv("SITE_URL", CFG["site"]["url"]).rstrip("/")
+        site_cta = f"▼比較まとめ {site}"
+        budget = 280 - 23 * 2 - len(tags) - len(tail) - len(site_cta) - 5
         name = short_name(p["name"])
         head = f"{name}\n{meta}"
         if len(head) > budget:
             name = name[:max(0, budget - len("\n" + meta) - 1)] + "…"
             head = f"{name}\n{meta}"
-        text = f"{head}\n{tags}\n{url}\n{tail}"
+        text = f"{head}\n{tags}\n{url}\n{tail}\n{site_cta}"
         (QUEUE / f"{today().isoformat()}_product-{p['id']}.txt").write_text(text, encoding="utf-8")
         bundle += [f"## {clean(p['name'])[:40]}", "", "```", text, "```", f"商品ページ: {os.getenv('SITE_URL', CFG['site']['url']).rstrip('/')}/product-{p['id']}.html", ""]
     sns_dir = BASE / "sns"
