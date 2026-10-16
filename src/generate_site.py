@@ -28,6 +28,8 @@ CSS = """
 a{color:var(--pink-d)}.wrap{max-width:1000px;margin:0 auto;padding:0 16px}
 .hero{background:linear-gradient(135deg,#ff5e8a,#b6205a);color:#fff;padding:44px 0 36px;text-align:center}
 .hero h1{margin:0 0 8px;font-size:1.7em}.hero p{margin:4px 0;opacity:.95}.hero .date{display:inline-block;background:rgba(255,255,255,.25);border-radius:20px;padding:2px 14px;font-size:.85em;margin-top:8px}
+.hero .logo{width:76px;height:76px;border-radius:50%;border:3px solid rgba(255,255,255,.85);object-fit:cover;background:#fff}
+.hero .xlink{color:#fff;font-weight:bold}
 nav.top{position:sticky;top:0;background:#fff;border-bottom:1px solid #f3dfe5;z-index:10}
 nav.top .wrap{display:flex;gap:16px;overflow-x:auto;padding:10px 16px;white-space:nowrap}
 nav.top a{text-decoration:none;font-weight:bold;font-size:.95em}
@@ -223,6 +225,13 @@ def main():
         print("[site] products.json が無い"); return
     products = json.loads(f.read_text(encoding="utf-8"))
     OUT.mkdir(exist_ok=True)
+    # 固定アセット (ロゴ等) をpublicへ複製 — 再生成で消えないように毎回コピー
+    import shutil as _shutil
+    _assets = BASE / "assets"
+    if _assets.is_dir():
+        for _a in sorted(_assets.iterdir()):
+            if _a.is_file() and _a.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp", ".svg", ".ico"):
+                _shutil.copyfile(_a, OUT / _a.name)
     top_n = CFG["site_gen"]["top_n"]
     src_label = detect_sources(products)
     print(f"[site] 取扱ソース: {src_label}")
@@ -232,11 +241,13 @@ def main():
 
     chips = "".join(f'<a class="chip" href="cat-{i}.html">{esc(kw)} ({len(v)}件)</a>' for i, (kw, v) in enumerate(by_kw.items()))
     top = products[:top_n]
-    hero = f"""<div class="hero"><div class="wrap"><h1>💄 {esc(SITE_NAME)}</h1>
+    hero = f"""<div class="hero"><div class="wrap">
+<img class="logo" src="x-icon.jpg" alt="{esc(SITE_NAME)} X @mitekosu">
+<h1>💄 {esc(SITE_NAME)}</h1>
 <p>{esc(src_label)}の人気コスメをレビュー件数・評価・価格で自動比較</p>
 <p>全{len(products)}商品掲載中・口コミ合計{sum(p.get('review_count',0) for p in products):,}件を集計</p>
 <span class="date">📅 {YM}版・毎日6時自動更新</span><br>
-<span style="font-size:.9em">初めての方は <a href="about.html" style="color:#fff;font-weight:bold">サイトについて →</a> をご覧ください</span></div></div>"""
+<span style="font-size:.9em"><a class="xlink" href="https://x.com/mitekosu" rel="noopener" target="_blank">𝕏 @mitekosuをフォロー</a> ｜ 初めての方は <a href="about.html" style="color:#fff;font-weight:bold">サイトについて →</a></span></div></div>"""
     # 代り映え対策: 高評価プールから日替わりランダム表示 (日付シードで日中は固定)
     import random as _random
     drng = _random.Random(TODAY.isoformat())
