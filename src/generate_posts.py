@@ -67,32 +67,48 @@ def main():
         safe = re.sub(r"[\\/:*?\"<>| ]+", "_", kw)[:40]
         (art_dir / f"{safe}.md").write_text(md, encoding="utf-8")
 
-    # SNS投稿文 (1日N件): 日付シードでランキング上位30件からランダム抽出 (毎日別商品・日中は固定)
-    ranked = sorted(products, key=lambda x: -x.get("review_count", 0))
+    # 人間らしい言い回しプール (日付シードで選択。カテゴリ別+汎用)
+    KW_HOOK = {
+        "クレンジング": ["毛穴の汚れが気になる季節はこれ", "W洗顔不要で楽ちんなやつ", "落としすぎないやつ探してた人へ"],
+        "美容液": ["ビタミンC系で人気なやつ", "くすみケアに取り入れてる人結構いる", "これからの季節は保湿重視で"],
+        "ファンデーション": ["カバー力だけど厚塗り感が無いやつ", "崩れやすいременнадүй облик…", "テカり対策してる人に"],
+        "日焼け止め": ["敏感肌でも使えるノンケミカル", "石けんオフで楽なやつ", "白浮きしないタイプ"],
+        "シャンプー": ["サロン専売品で評判良いやつ", "アミノ酸系でしっとり", "カラーパーマの人向け"],
+        "ハンドクリーム": ["ベタつかないので夜用にぴったり", "匂いが控えめで使いやすい", "持ち歩きサイズもあり"],
+        "化粧水": ["敏感肌でも安心タイプ", "コスパ重視ならこれ", "しっとり好きさんに"],
+        "リップ": ["保湿力が続くやつ", "プチプラでコスパ完璧", "唇のささくれに"],
+    }
+    G_HOOK = ["レビュー多くて安心のやつ", "口コミ件数が多い人気組", "高評価の率がすごいやつ", "リピ多めで安定の人気"]
+
+    # 本日のSNS投稿文 (1日N件): 高評価プールから日替わりランダム
     rng = random.Random(today().isoformat())
-    pool = ranked[:30] if len(ranked) > 30 else ranked
-    picks = rng.sample(pool, min(len(pool), CFG["sns"]["max_posts_per_day"]))
-    bundle = [f"# SNS原稿 {today().isoformat()}（コピペ用）", "", "X無料枠の範囲内 (1日3件) で自動生成。Xキー未設定の場合は以下を手動投稿。", ""]
+    ranked = sorted(products, key=lambda x: -x.get("review_count", 0))
+    pool = ranked[:50] if len(ranked) > 50 else ranked
+    n_posts = int(CFG["sns"].get("max_posts_per_day", 4))
+    picks = rng.sample(pool, min(len(pool), n_posts))
+    bundle = [f"# SNS原稿 {today().isoformat()}（コピペ用・1日{n_posts}件）", "",
+              "投稿時間の目安: ①7:30 ②12:15 ③18:00 ④21:30", ""]
     for p in picks:
         price = f'{p["price"]:,}円' if p.get("price") else "価格はリンク先"
         url = p["links"].get("rakuten") or p.get("url", "")
-        tags = CFG["sns"]["hashtags"]
+        cats = CFG["sns"]["hashtags"]
+        tags = rng.choice(cats)
         tail = "#PR アフィリエイト広告を利用しています"
-        meta = f"★{p.get('review_avg',0)}({p.get('review_count',0)}件) {price}"
-        # URLは絶対に切らない (切ると収益リンクが壊れる)。
-        # XはURLをt.co短縮で一律23字換算するため、本文はその基準で280字に収める
-        # 商品URL + サイトURLの2件分を23字換算で確保し、サイト誘導CTAを追加
+        kw = p.get("keyword", "")
+        hook = next((rng.choice(h) for k, h in KW_HOOK.items() if k in kw), rng.choice(G_HOOK))
         site = os.getenv("SITE_URL", CFG["site"]["url"]).rstrip("/")
-        site_cta = f"▼比較まとめ {site}"
-        budget = 280 - 23 * 2 - len(tags) - len(tail) - len(site_cta) - 5
-        name = short_name(p["name"])
-        head = f"{name}\n{meta}"
-        if len(head) > budget:
-            name = name[:max(0, budget - len("\n" + meta) - 1)] + "…"
-            head = f"{name}\n{meta}"
-        text = f"{head}\n{tags}\n{url}\n{tail}\n{site_cta}"
+        site_cta = f"比較一覧は {site}"
+        name = short_name(p["name"], 40)
+        # 280字=URL2件をt.co一律23字換算。残りを本文に
+        body_max = 280 - 23 * 2 - len(tags) - len(tail) - len(site_cta) - 6
+        body = f"{hook}。\n{name} ▶★{p.get('review_avg',0)}({p.get('review_count',0)}件) {price}"
+        if len(body) > body_max:
+            over = len(body) - body_max
+            name = name[:-1 - over] + "…" if over + 1 < len(name) else name[:30] + "…"
+            body = f"{hook}。\n{name} ▶★{p.get('review_avg',0)}({p.get('review_count',0)}件) {price}"
+        text = f"{body}\n{tags}\n{url}\n{tail}\n{site_cta}"
         (QUEUE / f"{today().isoformat()}_product-{p['id']}.txt").write_text(text, encoding="utf-8")
-        bundle += [f"## {clean(p['name'])[:40]}", "", "```", text, "```", f"商品ページ: {os.getenv('SITE_URL', CFG['site']['url']).rstrip('/')}/product-{p['id']}.html", ""]
+        bundle += [f"## {clean(p['name'])[:40]}", "", "```", text, "```", f"商品ページ: {site}/product-{p['id']}.html", ""]
     sns_dir = BASE / "sns"
     sns_dir.mkdir(exist_ok=True)
     (sns_dir / f"{today().isoformat()}.md").write_text("\n".join(bundle), encoding="utf-8")
