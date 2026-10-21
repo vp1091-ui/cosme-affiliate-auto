@@ -1,5 +1,6 @@
 """SEO記事ひな形 + SNS投稿文を自動生成。薬機法NGワードを除去。"""
 import json, re, os, random, pathlib, datetime
+from datetime import timedelta
 import yaml
 
 JST = datetime.timezone(datetime.timedelta(hours=9))
@@ -85,7 +86,19 @@ def main():
     ranked = sorted(products, key=lambda x: -x.get("review_count", 0))
     pool = ranked[:50] if len(ranked) > 50 else ranked
     n_posts = int(CFG["sns"].get("max_posts_per_day", 4))
-    picks = rng.sample(pool, min(len(pool), n_posts))
+    # 前日分と被らないよう、昨日投稿した商品IDを除外 (足りなければ制限なし)
+    ym_file = DATA / "sns_queue"
+    recent = set()
+    for d in range(1, 4):
+        day = (today() - timedelta(days=d)).isoformat()
+        recent |= {f.name.split("_")[1].replace("product-", "").replace(".txt", "")
+                   for f in ym_file.glob(f"{day}_product-*.txt")}
+        md_y = sns_dir_prev = BASE / "sns" / f"{day}.md"
+        if md_y.exists():
+            recent |= set(re.findall(r"product-(\d+)\.html", md_y.read_text(encoding="utf-8")))
+    fresh = [p for p in pool if str(p["id"]) not in recent]
+    pool_use = fresh if len(fresh) >= n_posts else fresh + [p for p in pool if p not in fresh]
+    picks = rng.sample(pool_use, min(len(pool_use), n_posts))
     bundle = [f"# SNS原稿 {today().isoformat()}（コピペ用・1日{n_posts}件）", "",
               "投稿時間の目安: ①7:30 ②9:30 ③12:15 ④15:00 ⑤18:00 ⑥20:00 ⑦21:30", ""]
     for p in picks:
