@@ -59,8 +59,8 @@ site_gen:
   daily_pick_top: 8
 
 sns:
-  # 1日4件 (朝/昼/夕方/夜の分散)
-  max_posts_per_day: 4
+  # 1日7件 (時間分散: 朝2/昼1/夕方2/夜2 の目安)
+  max_posts_per_day: 7
   hashtags:
     - "#コスメ #プチプラ #美容垢さんと繋がりたい"
     - "#プチプラコスメ #スキンケア #コスメ好き"

@@ -87,7 +87,7 @@ def main():
     n_posts = int(CFG["sns"].get("max_posts_per_day", 4))
     picks = rng.sample(pool, min(len(pool), n_posts))
     bundle = [f"# SNS原稿 {today().isoformat()}（コピペ用・1日{n_posts}件）", "",
-              "投稿時間の目安: ①7:30 ②12:15 ③18:00 ④21:30", ""]
+              "投稿時間の目安: ①7:30 ②9:30 ③12:15 ④15:00 ⑤18:00 ⑥20:00 ⑦21:30", ""]
     for p in picks:
         price = f'{p["price"]:,}円' if p.get("price") else "価格はリンク先"
         url = p["links"].get("rakuten") or p.get("url", "")
