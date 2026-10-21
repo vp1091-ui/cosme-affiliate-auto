@@ -3,8 +3,8 @@
 PR: 本記事はアフィリエイト広告を利用しています。
 
 ## 結論: レビュー件数上位3選
-- ★ポイント20倍★【送料無料】Yunth 生ビタミンC 美白美容液 1ml×28包 | 美容液 ビタ ★4.69(45347件) 3,960円
-- ポイント最大24倍★10/20 00:00~ 10/21 23:59★【公式】キールズ 透明 美白  ★4.76(3684件) 9,460円
+- ★ポイント20倍★【送料無料】Yunth 生ビタミンC 美白美容液 1ml×28包 | 美容液 ビタ ★4.69(45352件) 3,960円
+- ポイント最大24倍★10/20 00:00~ 10/21 23:59★【公式】キールズ 透明 美白  ★4.76(3685件) 9,460円
 - 【公式】 ラブミータッチ ホワイトシャインローション リッチ 30mL 美容液 ビタミンC誘導体 ビ ★4.81(3558件) 6,270円
 
 ## 選び方 (3ポイント)
@@ -22,7 +22,7 @@ PR: 本記事はアフィリエイト広告を利用しています。
 | 高濃度 ビタミンC20 美容液 シラクル プレミアムエッセン | 5,060円 | ★4.19 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00r17ao.ia7yt53d.g00r17ao.ia7yu7b7/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fciracle%2Fvitamin20%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fciracle%2Fi%2F10000003%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | 【 楽天1位 美容液 】 VinnaC ビンナシー 生ビタミ | 3,480円 | ★4.49 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00sm18o.ia7ytc7e.g00sm18o.ia7yu81f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ffromcocoro%2Fvinnac_skinserum_01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ffromcocoro%2Fi%2F10000347%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | 【Brand Day限定】 25%OFFクーポン有！【公式】 | 2,980円 | ★4.56 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00t45po.ia7ytb9a.g00t45po.ia7yue7e/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftsurunishi%2F905b01n0arfgp%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ftsurunishi%2Fi%2F10000260%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
-| KISO CARE ビタミンC誘導体 30％配合 美容液 キ | 2,185円 | ★4.44 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00slmqo.ia7ytf2e.g00slmqo.ia7yufc1/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fkiso%2Fkiso-k34%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fkiso%2Fi%2F10000091%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
+| 発売記念豪華特典付〈11/2 9:59まで〉◆黄金ビタミンシ | 11,880円 | ★4.58 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00q04mo.ia7yt554.g00q04mo.ia7yud53/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftakami-labo%2Fr-s030%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ftakami-labo%2Fi%2F10000562%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 
 ## 注意点
 - 化粧品の効果には個人差があります。断定的な効果はうたえません。
