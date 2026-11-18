@@ -3,8 +3,8 @@
 PR: 本記事はアフィリエイト広告を利用しています。
 
 ## 結論: レビュー件数上位3選
-- 【送料無料】Yunth 生ビタミンC 美白美容液 1ml×28包 | 美容液 ビタミンC 導入美容液 ★4.69(45465件) 3,960円
-- 【公式】キールズ 透明美白美容液 30mL 50ml セット 医薬部外品 DS クリアリーブライト  ★4.76(3702件) 9,460円
+- 【Yunth 公式】生ビタミンC 美白美容液 1ml×28包 医薬部外品 | ユンス ゆんす 導入美 ★4.69(45469件) 3,960円
+- 【公式】キールズ 透明美白美容液 30mL 50ml セット 医薬部外品 DS クリアリーブライト  ★4.76(3704件) 9,460円
 - 【公式】 ラブミータッチ ホワイトシャインローション リッチ 30mL 美容液 ビタミンC誘導体 ビ ★4.81(3595件) 6,270円
 
 ## 選び方 (3ポイント)
@@ -15,14 +15,14 @@ PR: 本記事はアフィリエイト広告を利用しています。
 ## 比較表
 | 商品 | 価格 | 評価 | リンク |
 |---|---|---|---|
-| 【送料無料】Yunth 生ビタミンC 美白美容液 1ml×2 | 3,960円 | ★4.69 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00u7rbo.ia7ytd75.g00u7rbo.ia7yuf40/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyunth%2F10000000%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyunth%2Fi%2F10000000%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
+| 【Yunth 公式】生ビタミンC 美白美容液 1ml×28包 | 3,960円 | ★4.69 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00u7rbo.ia7ytd75.g00u7rbo.ia7yuf40/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyunth%2F10000000%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyunth%2Fi%2F10000000%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | 【公式】キールズ 透明美白美容液 30mL 50ml セット | 9,460円 | ★4.76 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00u02po.ia7yt7c2.g00u02po.ia7yu6ad/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fkiehls%2F842-2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fkiehls%2Fi%2F10000018%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | 【公式】 ラブミータッチ ホワイトシャインローション リッチ | 6,270円 | ★4.81 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00ugd0o.ia7ytf57.g00ugd0o.ia7yua05/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fthe-beautopia%2F20094-030%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fthe-beautopia%2Fi%2F10000002%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | ビタミンC 美容液 ラブミータッチ ホワイトシャインローショ | 6,270円 | ★4.74 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00tqx8o.ia7yt73b.g00tqx8o.ia7yuf7e/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fmedlf%2F20094-003%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fmedlf%2Fi%2F10000047%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | BF限定 最大30%OFF★11/19 20:00～11/2 | 4,048円 | ★4.19 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00r17ao.ia7yt53d.g00r17ao.ia7yu7b7/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fciracle%2Fvitamin20%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fciracle%2Fi%2F10000003%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
-| 【 楽天1位 美容液 】 VinnaC ビンナシー 生ビタミ | 3,480円 | ★4.5 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00sm18o.ia7ytc7e.g00sm18o.ia7yu81f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ffromcocoro%2Fvinnac_skinserum_01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ffromcocoro%2Fi%2F10000347%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
+| ■19日20時~最大10%OFF(定期便除く)■【 楽天1位 | 3,480円 | ★4.5 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00sm18o.ia7ytc7e.g00sm18o.ia7yu81f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ffromcocoro%2Fvinnac_skinserum_01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ffromcocoro%2Fi%2F10000347%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | 【期間限定】20%OFFクーポン有！11/26 9:59まで | 2,980円 | ★4.56 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00t45po.ia7ytb9a.g00t45po.ia7yue7e/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftsurunishi%2F905b01n0arfgp%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ftsurunishi%2Fi%2F10000260%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
-| ピュアビタミンC25％配合 美容液 高濃度 プラスキレイ 生 | 1,700円 | ★4.47 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00qi2mo.ia7yteb3.g00qi2mo.ia7yud48/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fpycno%2Fpure-vc25-mini%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fpycno%2Fi%2F10004191%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
+| KISO CARE ビタミンC誘導体 30％配合 美容液 キ | 2,185円 | ★4.44 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00slmqo.ia7ytf2e.g00slmqo.ia7yufc1/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fkiso%2Fkiso-k34%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fkiso%2Fi%2F10000091%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 
 ## 注意点
 - 化粧品の効果には個人差があります。断定的な効果はうたえません。
