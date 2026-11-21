@@ -1,12 +1,17 @@
 """SNS自動投稿。X API v2 (Freeでも月1500件まで可)。
 キー無しでも data/sns_queue に原稿が残るので手動コピペで運用可。"""
-import os, pathlib, json
+import os, pathlib, json, datetime
 import requests
+import yaml
 
 BASE = pathlib.Path(__file__).resolve().parents[1]
+CFG = yaml.safe_load(open(BASE / "config.yaml", encoding="utf-8"))
 QUEUE = BASE / "data" / "sns_queue"
 DONE = BASE / "data" / "sns_done"
 DONE.mkdir(exist_ok=True)
+
+JST = datetime.timezone(datetime.timedelta(hours=9))
+TODAY = datetime.datetime.now(JST).date().isoformat()
 
 BEARER = os.getenv("X_BEARER_TOKEN", "")
 API_KEY = os.getenv("X_API_KEY", "")
@@ -32,14 +37,20 @@ def post_oauth1(text: str):
     return r.json()
 
 def main():
-    files = sorted(QUEUE.glob("*.txt"))
+    # 本日分 (アフィリ + 日常つぶやき) を優先。古い残キューは本日分が無いときだけ対象
+    files = sorted(QUEUE.glob(f"{TODAY}*.txt"))
+    if not files:
+        files = sorted(QUEUE.glob("*.txt"))
     if not files:
         print("[sns] 投稿キュー無し"); return
-    print(f"[sns] {len(files)}件のキュー")
+    sns_cfg = CFG.get("sns", {})
+    limit = int(sns_cfg.get("max_posts_per_day", 7)) + int(sns_cfg.get("chat_posts_per_day", 2))
+    files = files[:limit]
+    print(f"[sns] {len(files)}件のキュー (上限{limit}件)")
     if not (API_KEY and API_SEC and ACC_TOK and ACC_SEC):
         print("[sns] Xキー未設定 -> 自動投稿スキップ。data/sns_queue を手動コピペで投稿してください (ROOM/Pinterest転用可)")
         return
-    for f in files[:5]:
+    for f in files:
         text = f.read_text(encoding="utf-8")
         try:
             res = post_oauth1(text)

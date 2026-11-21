@@ -38,7 +38,7 @@ def main():
         print("[mail] 本日の原稿なし -> スキップ")
         return
     msg = MIMEText(body, "plain", "utf-8")
-    msg["Subject"] = f"【みてコス】本日のSNS原稿 {TODAY}"
+    msg["Subject"] = f"【みてコス】本日のSNS原稿 {TODAY}（アフィリ＋日常つぶやき）"
     msg["From"] = user
     msg["To"] = to
     with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as s:

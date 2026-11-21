@@ -8,7 +8,7 @@
 - ホスティング: Cloudflare Pages / Vercel / GitHub Pages のいずれか無料枠
 - 自動更新: GitHub Actions cron 毎日6時 (無料) → `public/` を自動commit→ホスティングが自動再デプロイ
 - ドメインのみ実費: 年1000円前後 (.com/.jpはCloudflare Registrarが安い) → 月1000円以内に収まる
-- SNS: `data/sns_queue/*.txt` を自動生成 → Xキーあれば自動投稿、無ければコピペでROOM/Instagram/Pinterestに転用
+- SNS: `data/sns_queue/*.txt` を自動生成 → Gmailにコピペ用原稿を送信 → 手動でXに投稿 (アフィリ7件＋日常つぶやき2件/日)
 
 ## 1. 初期取得 (ID取得: 0円)
 1. 楽天Web Service: https://webservice.rakuten.co.jp/ でアプリID発行 → アフィリエイトIDは楽天アフィリエイトで取得しリンク連携
@@ -48,11 +48,24 @@ py src/run_all.py
 - X自動投稿されない: Freeプランは月1500件・App-onlyでは投稿不可。OAuth1.0a4種必須。無ければ `data/sns_queue` 手動投稿でOK
 - 検索流入が無い: sitemapをSearch Console登録、RSSをPinterest・ROOMに連携
 
+## 6. SNS原稿の中身 (毎朝メールで届くもの)
+`sns/YYYY-MM-DD.md` がメール本文として届きます。コピペ用の ``` ブロックごとに1投稿です。
+
+- **■ アフィリエイト投稿 (7件/目安)**: PR表記・アフィリリンクあり
+  - 商品は **全200件** を候補に、カテゴリを1件ずつ順番に回すため、同じカテゴリが一日に集中しません
+  - 直近 `affiliate_history_days` (既定10日) に投稿した商品は除外。除外で足りない時だけ補充します
+  - カテゴリ内はレビュー上位70%を中心に、20%の確率で下位からも拾うので固定化しません
+- **■ 日常つぶやき (2件/目安 12:45・22:30)**: PR表記も商品リンクもない、普通のつぶやき
+  - 24種類のテンプレートから日付シードで選択。直近10日で使ったものは出ません
+  - 最後の `<!-- chat_ids: ... -->` は次回の重複回避用の履歴なので消さないでください (`sns/` はGitHubにcommitされます)
+
+設定は `config.yaml` の `sns:` セクション (`max_posts_per_day` / `chat_posts_per_day` / `affiliate_history_days` など) で変更できます。
+
 ## ファイル一覧
 - src/fetch_rakuten.py: 楽天検索+ランキング
 - src/fetch_amazon.py: PA-API + フォールバック検索リンク
 - src/merge_products.py: 名寄せ・価格比較
 - src/generate_site.py: 静的HTML/sitemap/rss
-- src/generate_posts.py: 記事雛形 + SNS原稿
+- src/generate_posts.py: 記事雛形 + SNS原稿 (アフィリのバリエーション化 + 日常つぶやき生成)
 - src/post_sns.py: X自動投稿 (任意)
 - src/run_all.py: 一括実行
