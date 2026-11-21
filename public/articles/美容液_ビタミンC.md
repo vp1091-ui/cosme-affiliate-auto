@@ -3,9 +3,9 @@
 PR: 本記事はアフィリエイト広告を利用しています。
 
 ## 結論: レビュー件数上位3選
-- ★P20倍＋セット 20日9:59マデ★【Yunth 公式】生ビタミンC 美白美容液 1ml×28包 ★4.69(45479件) 3,960円
+- ★P30％還元＋セット21日9:59マデ【Yunth 公式】生ビタミンC 美白美容液 1ml×28包 ★4.69(45500件) 3,960円
 - ポイント20倍★11/19 20:00~11/25 01:59★【公式】キールズ 透明美白美容液 3 ★4.76(3705件) 9,460円
-- 【公式】 ラブミータッチ ホワイトシャインローション リッチ 30mL 美容液 ビタミンC誘導体 ビ ★4.81(3597件) 6,270円
+- 【公式】 ラブミータッチ ホワイトシャインローション リッチ 30mL 美容液 ビタミンC誘導体 ビ ★4.81(3598件) 6,270円
 
 ## 選び方 (3ポイント)
 1. 肌質と成分表示を確認 (敏感肌はパッチテスト推奨)
@@ -15,7 +15,7 @@ PR: 本記事はアフィリエイト広告を利用しています。
 ## 比較表
 | 商品 | 価格 | 評価 | リンク |
 |---|---|---|---|
-| ★P20倍＋セット 20日9:59マデ★【Yunth 公式】 | 3,960円 | ★4.69 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00u7rbo.ia7ytd75.g00u7rbo.ia7yuf40/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyunth%2F10000000%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyunth%2Fi%2F10000000%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
+| ★P30％還元＋セット21日9:59マデ【Yunth 公式】 | 3,960円 | ★4.69 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00u7rbo.ia7ytd75.g00u7rbo.ia7yuf40/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyunth%2F10000000%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyunth%2Fi%2F10000000%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | ポイント20倍★11/19 20:00~11/25 01:5 | 9,460円 | ★4.76 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00u02po.ia7yt7c2.g00u02po.ia7yu6ad/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fkiehls%2F842-2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fkiehls%2Fi%2F10000018%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | 【公式】 ラブミータッチ ホワイトシャインローション リッチ | 6,270円 | ★4.81 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00ugd0o.ia7ytf57.g00ugd0o.ia7yua05/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fthe-beautopia%2F20094-030%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fthe-beautopia%2Fi%2F10000002%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | BF限定 最大30%OFF★11/19 20:00～11/2 | 4,048円 | ★4.19 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00r17ao.ia7yt53d.g00r17ao.ia7yu7b7/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fciracle%2Fvitamin20%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fciracle%2Fi%2F10000003%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
