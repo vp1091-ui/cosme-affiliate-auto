@@ -7,7 +7,7 @@ site:
   contact: "お問い合わせはX(@mitekosu)DMまで"
   # Googleフォームの「埋め込み用URL」を設定すると contact.html にフォームが埋め込まれる
   # 例: https://docs.google.com/forms/d/e/1FAIpQLSxxxxx/viewform?embedded=true
-  contact_form_url: ""
+  contact_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSdp85o6JUXjSgb42Ha2B8pY3E5Q7Ya5kfHRpz8zORqwZRHLVg/viewform?embedded=true"
   contact_email: ""   # 任意。設定すると mailto 導線も表示
 
 # 表示課金広告 (貼るだけで閲覧連動収益)。ID設定後に自動挿入。未設定は非表示
