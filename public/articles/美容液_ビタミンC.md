@@ -3,7 +3,7 @@
 PR: 本記事はアフィリエイト広告を利用しています。
 
 ## 結論: レビュー件数上位3選
-- 生ビタミンC 美白美容液 1ml×28包 医薬部外品 | ユンス ゆんす 導入美容液 ブースター 先… ★4.69(45546件) 3,960円
+- 12/3 10時～再販開始★ 生ビタミンC 美白美容液 1ml×28包 医薬部外品 | ユンス ゆん… ★4.69(45550件) 3,960円
 - 11/25 10:00～11/26 23:59★ キールズ 透明美白美容液 30mL 50ml セッ… ★4.76(3708件) 9,460円
 - VinnaC ビンナシー 生ビタミンC 生CICA 美容液 毛穴美容液 ビタミンC CICA 毛穴ケ… ★4.5(1887件) 3,480円
 
@@ -15,7 +15,7 @@ PR: 本記事はアフィリエイト広告を利用しています。
 ## 比較表
 | 商品 | 価格 | 評価 | リンク |
 |---|---|---|---|
-| 生ビタミンC 美白美容液 1ml×28包 医薬部外品 | ユ… | 3,960円 | ★4.69 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00u7rbo.ia7ytd75.g00u7rbo.ia7yuf40/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyunth%2F10000000%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyunth%2Fi%2F10000000%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
+| 12/3 10時～再販開始★ 生ビタミンC 美白美容液 1m… | 3,960円 | ★4.69 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00u7rbo.ia7ytd75.g00u7rbo.ia7yuf40/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fyunth%2F10000000%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fyunth%2Fi%2F10000000%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | 11/25 10:00～11/26 23:59★ キールズ… | 9,460円 | ★4.76 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00u02po.ia7yt7c2.g00u02po.ia7yu6ad/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Fkiehls%2F842-2%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Fkiehls%2Fi%2F10000018%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | VinnaC ビンナシー 生ビタミンC 生CICA 美容液… | 3,480円 | ★4.5 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00sm18o.ia7ytc7e.g00sm18o.ia7yu81f/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ffromcocoro%2Fvinnac_skinserum_01%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ffromcocoro%2Fi%2F10000347%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
 | オルナオーガニック 美容液 くすみ 対策 スキンケア 潤い… | 2,980円 | ★4.56 | [楽天](https://hb.afl.rakuten.co.jp/hgc/g00t45po.ia7ytb9a.g00t45po.ia7yue7e/?pc=https%3A%2F%2Fitem.rakuten.co.jp%2Ftsurunishi%2F905b01n0arfgp%2F&m=http%3A%2F%2Fm.rakuten.co.jp%2Ftsurunishi%2Fi%2F10000260%2F&rafcid=wsc_i_is_355189b4-71a4-42dd-9b0c-e65c5f29707a) [Amazon]() |
