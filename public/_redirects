@@ -1,5 +1,0 @@
-# Cloudflare Pages / Netlify 用: www と http を正規ドメインへ集約
-# canonical タグは各HTMLに出力済み。こちらはサーバー側の301リダイレクト。
-https://www.mitekosu.com/* https://mitekosu.com/:splat 301!
-http://www.mitekosu.com/*  https://mitekosu.com/:splat 301!
-http://mitekosu.com/*      https://mitekosu.com/:splat 301!

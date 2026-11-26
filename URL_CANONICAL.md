@@ -12,20 +12,25 @@
 
 ---
 
-## 1. Cloudflare Pages（この構成の推奨）
+## 1. Cloudflare Pages（この構成）
 
-`public/_redirects` を追加済みです。ビルド出力 `public` を指定していれば、そのままデプロイで反映されます。
+**注意**: Pages の `_redirects` は「左側に相対パス」しか書けません。  
+`https://www.mitekosu.com/* ...` のようなホスト名付きの書き方はビルドが失敗します（エラー例: `Only relative URLs are allowed` / `Valid status codes are ... Got 0`）。  
+そのため `public/_redirects` は削除済みです。**ホスト単位のリダイレクトはダッシュボードの Redirect Rules で設定してください。**
 
-```
-https://www.mitekosu.com/* https://mitekosu.com/:splat 301!
-http://www.mitekosu.com/*  https://mitekosu.com/:splat 301!
-http://mitekosu.com/*      https://mitekosu.com/:splat 301!
-```
+### Cloudflare ダッシュボードでの設定
 
-- 末尾の `301!` は既存ファイルがあっても強制的にリダイレクトする指定です。
-- DNS で `www` と apex（`mitekosu.com`）の両方を Cloudflare に向けておく必要があります。
+1. https://dash.cloudflare.com → `mitekosu.com` のゾーンを開く
+2. **Rules → Redirect Rules → Create rule**
+3. Rule name: `www to apex`
+   - When: `Hostname` `equals` `www.mitekosu.com`
+   - Then: `Redirect` / `301` / `https://mitekosu.com%{uri}`
+4. もう1つ作成: Rule name: `http to https`
+   - When: `SSL` `is off`
+   - Then: `Redirect` / `301` / `https://mitekosu.com%{uri}`
+5. DNS で `www` と apex（`mitekosu.com`）の両方を Cloudflare に向けておく
 
-別途 Cloudflare ダッシュボードの **Rules → Bulk Redirects** で `www.mitekosu.com` → `mitekosu.com` を設定しても同等です。
+Pages の `_redirects` で書けるのは `/old.html /new.html 301` のような**サイト内パスのみ**です。
 
 ---
 
