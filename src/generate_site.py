@@ -538,7 +538,8 @@ def main():
         f"{SITE_URL}/privacy.html"), encoding="utf-8")
 
     if contact_url:
-        form = f"""<div class="formbox"><iframe src="{esc(contact_url)}" title="お問い合わせフォーム">このブラウザはiframeに対応していません。</iframe></div>
+        form_h = int(_num(op.get("contact_form_height"), 951) or 951)
+        form = f"""<div class="formbox"><iframe src="{esc(contact_url)}" title="お問い合わせフォーム" height="{form_h}">このブラウザはiframeに対応していません。</iframe></div>
 <p style="text-align:center;margin-top:10px"><a href="{esc(contact_url)}" rel="noopener" target="_blank">フォームが表示されない場合はこちらから入力 →</a></p>"""
     else:
         form = ("""<div class="formbox"><p>お問い合わせフォームを準備中です。お手数ですが、下記の連絡先よりご連絡ください。</p>"""
