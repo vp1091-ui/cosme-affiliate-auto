@@ -89,6 +89,15 @@ footer a{color:#ffd9e4}
 .column-list{list-style:none;padding:0;margin:0 0 10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
 .column-list li{background:#fff;border-radius:10px;padding:8px 12px;border:1px solid #f4dce4}
 .column-list a{font-size:1.05em;font-weight:bold;text-decoration:none}
+.daily-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin:14px 0}
+.daily-card{background:#fff;border:2px solid #f7c6d4;border-radius:16px;padding:18px;box-shadow:0 4px 14px rgba(233,30,99,.08)}
+.daily-card h3{font-size:1.15em;margin:10px 0 6px;line-height:1.5}
+.daily-card h3 a{color:var(--pink-d);text-decoration:none}
+.daily-card img{width:100%;height:180px;object-fit:contain;background:#faf7f8;border-radius:10px}
+.daily-card .meta{font-size:.92em;margin:6px 0}
+.daily-list{list-style:none;padding:0;margin:12px 0}
+.daily-list li{padding:8px 0;border-bottom:1px solid #f0dde3}
+.daily-list a{font-weight:bold;text-decoration:none}
 """
 
 def esc(s): return html.escape(str(s or ""))
@@ -320,7 +329,7 @@ def page(title, desc, body, extra_head="", canonical=""):
 <meta property="og:description" content="{esc(desc)}">
 <meta property="og:url" content="{esc(canonical)}"><meta property="og:site_name" content="{esc(SITE_NAME)}">
 {canon}{ad_head}{extra_head}<style>{CSS}</style></head><body>
-<nav class="top"><div class="wrap"><a href="index.html">🏠 トップ</a><a href="ranking.html">👑 ランキング</a><a href="about.html">ℹ️ 運営者情報</a><a href="contact.html">✉️ お問い合わせ</a><a href="privacy.html">🔒 プライバシー</a></div></nav>
+<nav class="top"><div class="wrap"><a href="index.html">🏠 トップ</a><a href="ranking.html">👑 ランキング</a><a href="daily.html">📌 今日のピックアップ</a><a href="about.html">ℹ️ 運営者情報</a><a href="contact.html">✉️ お問い合わせ</a><a href="privacy.html">🔒 プライバシー</a></div></nav>
 <div class="wrap"><p class="pr">PR: 当サイトはアフィリエイト広告を利用しています。掲載価格・在庫は取得時点のもので変更される場合があります。化粧品の効果には個人差があります。</p></div>
 {body}
 {ad_block("article")}
@@ -384,6 +393,125 @@ def detail(p, src_label, related, rank_in_cat=0, cat_total=0):
 def cat_slug(kw):
     return re.sub(r"\s+", "-", kw.strip())[:30]
 
+
+# ===== 毎日2商品のピックアップ記事 =====
+def load_daily_history():
+    f = OUT / "daily_picks.json"
+    if f.exists():
+        try:
+            return json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return {}
+
+
+def save_daily_history(h):
+    (OUT / "daily_picks.json").write_text(json.dumps(h, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def pick_daily(products, history, rng):
+    """過去のピックアップを極力避けつつ、カテゴリの違う2商品を選ぶ。
+    同じ日の再実行は同じ商品を返す (冪等)。"""
+    key = TODAY.isoformat()
+    if key in history:
+        chosen = [next((p for p in products if p["id"] == i), None) for i in history[key]]
+        if all(chosen):
+            return chosen
+    cands = [p for p in products
+             if int(_num(p.get("review_count")) or 0) >= 10 and int(_num(p.get("price")) or 0) > 0]
+    if len(cands) < 2:
+        cands = list(products)
+    recent = set()
+    for d, ids in history.items():
+        if d <= key:
+            recent |= set(ids)
+    fresh = [p for p in cands if p["id"] not in recent]
+    pool = fresh if len(fresh) >= 2 else cands
+    by_kw = {}
+    for p in pool:
+        by_kw.setdefault(p.get("keyword") or "その他", []).append(p)
+    cats = list(by_kw)
+    rng.shuffle(cats)
+    chosen = []
+    for c in cats:
+        arr = sorted(by_kw[c], key=lambda x: -int(_num(x.get("review_count")) or 0))
+        top = max(1, int(len(arr) * 0.7))
+        chosen.append(rng.choice(arr[:top]))
+        if len(chosen) == 2:
+            break
+    if len(chosen) < 2:
+        used = {p["id"] for p in chosen}
+        chosen += [p for p in pool if p["id"] not in used][:2 - len(chosen)]
+    history[key] = [p["id"] for p in chosen]
+    cutoff = (TODAY - datetime.timedelta(days=120)).isoformat()
+    keep = {d: v for d, v in sorted(history.items()) if d >= cutoff}
+    keep[key] = history[key]
+    save_daily_history(keep)
+    return chosen
+
+
+def daily_article(p, all_products, cat_index, idx=1):
+    """1商品につき、選定理由・比較・口コミ傾向・注意点をまとめた記事を返す。"""
+    kw = p.get("keyword") or "コスメ"
+    g = guide_for(kw)
+    name = display_name(p, 60)
+    price = int(_num(p.get("price")) or 0)
+    price_s = f"{price:,}円" if price else "価格はリンク先で確認"
+    rc = int(_num(p.get("review_count")) or 0)
+    avg = float(_num(p.get("review_avg")) or 0)
+    img = f'<img src="{esc(p.get("image",""))}" alt="{esc(name)}" loading="lazy">' if p.get("image") else ""
+    caption = excerpt(p.get("caption", ""), 320)
+    cat_items = all_products.get(kw, [])
+    others = [q for q in sorted(cat_items, key=lambda x: -int(_num(x.get("review_count")) or 0)) if q["id"] != p["id"]][:3]
+    rows = "".join(
+        f'<tr><th>{esc(display_name(q, 34))}</th><td>★{esc(q.get("review_avg",0))}</td>'
+        f'<td>{esc(q.get("review_count",0))}件</td><td>{int(_num(q.get("price")) or 0):,}円</td></tr>'
+        for q in others)
+    compare = (f'<table class="top3"><thead><tr><th>同カテゴリの商品</th><th>評価</th><th>口コミ</th><th>価格</th></tr></thead>'
+               f'<tbody>{rows}</tbody></table>' if rows else "")
+    tips = "".join(f"<li><strong>{esc(t)}</strong>：{esc(d)}</li>" for t, d in g["tips"][:3])
+    faq = "".join(f"<details><summary>{esc(q)}</summary><p>{esc(a)}</p></details>" for q, a in g["faq"][:3])
+    body = f"""<div class="hero"><div class="wrap"><h1>今日のピックアップ：{esc(name)}</h1>
+<p>{esc(kw)} / ★{esc(avg)}（{rc:,}件のレビュー） / {esc(price_s)}</p>
+<p style="font-size:.9em">{TODAY.strftime('%Y年%m月%d日')} 編集部セレクション</p></div></div>
+<div class="wrap"><p class="crumb"><a href="index.html">トップ</a> ＞ <a href="daily.html">今日のピックアップ</a> ＞ {esc(display_name(p, 30))}</p>
+<div class="detail"><div>{img}</div><div>
+<p class="lead" style="font-size:1.05em;font-weight:bold">今日はこの商品を取り上げます。レビュー{rc:,}件・評価★{esc(avg)}と、同じカテゴリの中でも多くの人の意見が集まっている一品です。</p>
+<div class="cta">{btns(p)}<p class="note">最新の価格・在庫・ポイントはリンク先でご確認ください。PR: 当サイトはアフィリエイト広告を利用しています。</p></div>
+</div></div>
+<h2 class="sec">この商品を選んだ理由</h2>
+<ul>
+<li>レビュー件数 {rc:,}件：実際に使った人の声が多く、傾向を読み取りやすい</li>
+<li>評価 ★{esc(avg)}：購入前の満足度の目安として参考にできる</li>
+<li>参考価格 {esc(price_s)}：容量・内容と合わせてコスパを比較しやすい</li>
+</ul>
+<h2 class="sec">失敗しないために確認したい3点</h2>
+<ol>{tips}</ol>
+<h2 class="sec">ショップの説明から読み取れること</h2>
+<p>{esc(caption) if caption else '商品の詳細はリンク先の販売ページでご確認ください。'}</p>
+<p class="note">出典: 販売店の掲載文を自動引用（薬機法に配慮し一部言い換えあり）</p>
+<h2 class="sec">同カテゴリの商品と比べる</h2>
+{compare}
+<p><a href="cat-{cat_index.get(kw, 0)}.html">→ {esc(kw)}のランキングをすべて見る</a></p>
+<h2 class="sec">よくある質問</h2><div class="faq">{faq}</div>
+<p class="note">化粧品の効果には個人差があります。断定的な効果はうたっていません。肌に合わない場合は使用を中止してください。</p>
+<p><a href="daily.html">← 今日のピックアップ一覧へ</a> ｜ <a href="index.html">トップへ</a></p>
+</div>"""
+    ld = {"@context": "https://schema.org", "@type": "Product", "name": name,
+          "image": p.get("image", ""), "description": caption[:200],
+          "offers": {"@type": "Offer", "priceCurrency": "JPY", "price": price,
+                     "availability": "https://schema.org/InStock"}}
+    try:
+        ld["aggregateRating"] = {"@type": "AggregateRating", "ratingValue": avg, "reviewCount": rc}
+    except Exception:
+        pass
+    head = (jsonld_breadcrumb([("トップ", f"{SITE_URL}/index.html"),
+                               ("今日のピックアップ", f"{SITE_URL}/daily.html"),
+                               (name[:30], f"{SITE_URL}/daily/{TODAY.isoformat()}-{idx}.html")])
+            + '<script type="application/ld+json">' + json.dumps(ld, ensure_ascii=False) + "</script>")
+    return body, head
+
+
 def main():
     f = DATA / "products.json"
     if not f.exists():
@@ -437,13 +565,31 @@ def main():
         combined = high + extra
         return drng.sample(combined, min(n, len(combined))) if len(combined) > n else combined
 
-    all_high = high_pick(products, min(top_pick_n, len(products)))
-    sections = []
-    for i, (kw, v) in enumerate(by_kw.items()):
-        picks = high_pick(v, min(per_cat, len(v)))
-        sections.append(f"""<h2 class="sec">{esc(kw)} ピックアップ <a class="chip" href="cat-{i}.html">👑 ランキング・高評価ランダムを見る →</a></h2>
-<p class="note">★{min_avg}以上・レビュー{min_cnt}件以上の高評価から日替わりで{len(picks)}件表示 (詳しくは <a href="about.html">サイトについて →</a>)</p>
-<div class="cards">{''.join(card(p) for p in picks)}</div>""")
+    cat_index = {kw: i for i, (kw, _) in enumerate(by_kw.items())}
+
+    # ---- 毎日2商品のピックアップ記事 (過去と極力被らない / 同日再実行は冪等) ----
+    history = load_daily_history()
+    daily_picks = pick_daily(products, history, drng)
+    daily_dir = OUT / "daily"
+    daily_dir.mkdir(exist_ok=True)
+    daily_cards = ""
+    for idx, p in enumerate(daily_picks, 1):
+        rel = f"daily/{TODAY.isoformat()}-{idx}.html"
+        body, head = daily_article(p, dict(by_kw), cat_index, idx)
+        name = display_name(p, 56)
+        price = int(_num(p.get("price")) or 0)
+        img = (f'<a href="{rel}"><img src="{esc(p.get("image",""))}" alt="{esc(name)}" loading="lazy"></a>'
+               if p.get("image") else "")
+        (OUT / rel).write_text(page(
+            f"{name}｜今日のピックアップ {TODAY.strftime('%m/%d')}｜{SITE_NAME}",
+            f"{name}のレビュー・価格と選び方をまとめた毎日のピックアップ記事。",
+            body, head, f"{SITE_URL}/{rel}"), encoding="utf-8")
+        daily_cards += f"""<div class="daily-card">{img}
+<h3><a href="{rel}">{esc(name)}</a></h3>
+<p class="meta"><span class="stars">{stars(p.get('review_avg'))}</span> ★{esc(p.get('review_avg',0))}（{esc(p.get('review_count',0))}件） / {price:,}円</p>
+<p class="note">{esc(p.get('keyword',''))} ｜ {esc(p.get('shop',''))}</p>
+<p><a href="{rel}">→ この商品の記事を読む</a></p></div>"""
+
     index_body = hero + f"""<div class="wrap">
 <section class="column-promo">
 <h2>📝 特集コラム｜失敗しないコスメの選び方</h2>
@@ -452,12 +598,11 @@ def main():
 <p><a href="articles.html">→ すべての特集コラムを見る</a></p>
 </section>
 <h2 class="sec">悩み別に探す</h2><div class="chips">{chips}</div>
-<h2 class="sec">✨ 今日の高評価ピックアップ (日替わり)</h2>
-<p class="note">評価★{min_avg}以上の人気商品からランダム表示。毎日変わります。</p>
-<div class="cards">{''.join(card(p) for p in all_high)}</div>
-{''.join(sections)}
-<p><a href="ranking.html">👑 総合ランキング・今日のピックアップはこちら →</a></p>
-<p><a href="articles.html">📝 特集コラム（選び方・注目成分・FAQ）はこちら →</a></p>
+<h2 class="sec">📌 今日のピックアップ記事（2商品）</h2>
+<p class="note">毎日2商品を、これまでのピックアップと極力被らないように選んで記事にしています。ランキングは <a href="ranking.html">こちら</a> からご覧ください。</p>
+<div class="daily-grid">{daily_cards}</div>
+<p><a href="daily.html">→ 過去のピックアップ記事をすべて見る</a></p>
+<p><a href="ranking.html">👑 総合ランキングはこちら →</a></p>
 <p><a href="about.html">ℹ️ サイトについて・運営者情報はこちら →</a></p>
 <p><a href="contact.html">✉️ お問い合わせはこちら →</a></p></div>"""
     (OUT / "index.html").write_text(
@@ -653,8 +798,34 @@ def main():
         jsonld_breadcrumb([("トップ", f"{SITE_URL}/index.html"), ("特集コラム", f"{SITE_URL}/articles.html")]),
         f"{SITE_URL}/articles.html"), encoding="utf-8")
 
-    urls = (["index.html", "ranking.html", "articles.html", "contact.html", "privacy.html", "about.html"]
-            + cat_files + editorial_files + [f"product-{p['id']}.html" for p in products])
+    # 毎日ピックアップ記事の一覧 (日付ごとにまとめる)
+    daily_files = sorted(daily_dir.glob("*.html"))
+    groups = {}
+    for fp in daily_files:
+        groups.setdefault(fp.name[:10], []).append(fp.name)
+    daily_items = ""
+    for d in sorted(groups, reverse=True):
+        daily_items += f"<h3>{esc(d)}</h3><ul class=\"daily-list\">"
+        for fn in sorted(groups[d]):
+            txt = (daily_dir / fn).read_text(encoding="utf-8")
+            m = re.search(r"<h1>今日のピックアップ：([^<]+)</h1>", txt)
+            title = m.group(1) if m else fn.replace(".html", "")
+            daily_items += f'<li><a href="daily/{esc(fn)}">{esc(title)}</a></li>'
+        daily_items += "</ul>"
+    (OUT / "daily.html").write_text(page(
+        f"今日のピックアップ記事一覧｜{SITE_NAME}",
+        f"{SITE_NAME}が毎日2商品ずつお届けするピックアップ記事のアーカイブ。",
+        f"""<div class="hero"><div class="wrap"><h1>📌 今日のピックアップ</h1><p>毎日2商品、過去と極力被らないように選んだ記事</p></div></div>
+<div class="wrap"><p class="crumb"><a href="index.html">トップ</a> ＞ 今日のピックアップ</p>
+<p>商品ランキングとは別に、その日に注目した2商品を記事にしています。ランキングは <a href="ranking.html">こちら</a>。</p>
+{daily_items}
+<p><a href="index.html">← トップへ戻る</a></p></div>""",
+        jsonld_breadcrumb([("トップ", f"{SITE_URL}/index.html"), ("今日のピックアップ", f"{SITE_URL}/daily.html")]),
+        f"{SITE_URL}/daily.html"), encoding="utf-8")
+
+    urls = (["index.html", "ranking.html", "daily.html", "articles.html", "contact.html", "privacy.html", "about.html"]
+            + cat_files + editorial_files + [f"daily/{fp.name}" for fp in daily_files]
+            + [f"product-{p['id']}.html" for p in products])
     sm = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
     for u in urls:
         sm += f"<url><loc>{SITE_URL}/{u}</loc><lastmod>{TODAY.isoformat()}</lastmod></url>"
