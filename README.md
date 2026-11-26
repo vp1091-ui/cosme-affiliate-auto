@@ -61,11 +61,21 @@ py src/run_all.py
 
 設定は `config.yaml` の `sns:` セクション (`max_posts_per_day` / `chat_posts_per_day` / `affiliate_history_days` など) で変更できます。
 
+## 7. AdSense審査・収益化対応 (2026-11-26 追加)
+- **必須ページ**: `privacy.html`（AdSense/Cookie・PR表記・免責・解析）/ `contact.html`（Googleフォーム埋め込み）/ `about.html`（運営者情報）を自動生成。フッターから全ページへ1クリックで遷移
+  - Googleフォームを使う場合は `config.yaml` の `site.contact_form_url` に**埋め込み用URL**を設定（未設定時はX DM用の案内を表示）
+- **独自コンテンツ**: 各カテゴリページに「選び方ガイド / 注目成分 / 肌質別診断 / FAQ」を約1,500文字追加。さらに `public/articles/column-01〜08.html` と一覧 `articles.html` を生成
+- **比較しやすさ**: カテゴリ最上部に目的別TOP3比較表、価格帯フィルター・並び替えJS、レビュー数/評価/価格の自動バッジを追加
+- **商品名整形**: `src/content.py` の `clean_product_name()` が【期間限定】【送料無料】【★P10倍】等を除去（サイト・SNS・構造化データで共通利用）
+- **SEO**: 全ページに canonical、カテゴリ/コラムに BreadcrumbList・FAQPage・ItemList の JSON-LD を出力
+- **リダイレクト**: `public/_redirects`（Cloudflare Pages用）と手順は `URL_CANONICAL.md` を参照
+
 ## ファイル一覧
 - src/fetch_rakuten.py: 楽天検索+ランキング
 - src/fetch_amazon.py: PA-API + フォールバック検索リンク
 - src/merge_products.py: 名寄せ・価格比較
-- src/generate_site.py: 静的HTML/sitemap/rss
+- src/generate_site.py: 静的HTML/sitemap/rss + 必須ページ/独自コンテンツ/構造化データ
+- src/content.py: 商品名整形 + カテゴリ別ガイド/FAQ/コラムデータ
 - src/generate_posts.py: 記事雛形 + SNS原稿 (アフィリのバリエーション化 + 日常つぶやき生成)
 - src/post_sns.py: X自動投稿 (任意)
 - src/run_all.py: 一括実行

@@ -8,6 +8,8 @@ import json, re, os, random, pathlib, datetime
 from datetime import timedelta
 import yaml
 
+from content import clean_product_name
+
 JST = datetime.timezone(datetime.timedelta(hours=9))
 
 def today():
@@ -27,10 +29,8 @@ def clean(s: str) -> str:
     return s
 
 def short_name(s: str, limit: int = 48) -> str:
-    # SNS用: 【販促文言】除去→空白整理→短縮 (クリックされやすい形に)
-    s = re.sub(r"【[^】]*】", "", clean(s))
-    s = re.sub(r"\s+", " ", s).strip(" /|】")
-    return s if len(s) <= limit else s[:limit] + "…"
+    # 共通クリーナーで販促ノイズを除去してから短縮 (サイトと同じ表記に統一)
+    return clean_product_name(clean(s), limit)
 
 ARTICLE_TPL = """# {kw} 比較 {ym}【自動更新】
 
@@ -247,8 +247,8 @@ def main():
         items = [p for p in products if p.get("keyword") == kw][:8]
         if not items:
             continue
-        top3 = "\n".join(f"- {clean(p['name'][:50])} ★{p.get('review_avg',0)}({p.get('review_count',0)}件) {p.get('price',0):,}円" for p in items[:3])
-        table = "\n".join(f"| {clean(p['name'][:30])} | {p.get('price',0):,}円 | ★{p.get('review_avg',0)} | [楽天]({p['links'].get('rakuten','')}) [Amazon]({p['links'].get('amazon','')}) |" for p in items)
+        top3 = "\n".join(f"- {clean_product_name(p['name'], 50)} ★{p.get('review_avg',0)}({p.get('review_count',0)}件) {p.get('price',0):,}円" for p in items[:3])
+        table = "\n".join(f"| {clean_product_name(p['name'], 30)} | {p.get('price',0):,}円 | ★{p.get('review_avg',0)} | [楽天]({p['links'].get('rakuten','')}) [Amazon]({p['links'].get('amazon','')}) |" for p in items)
         table = "| 商品 | 価格 | 評価 | リンク |\n|---|---|---|---|\n" + table
         md = ARTICLE_TPL.format(kw=kw, ym=ym, top3=top3, table=table)
         safe = re.sub(r"[\\/:*?\"<>| ]+", "_", kw)[:40]
