@@ -83,6 +83,12 @@ footer a{color:#ffd9e4}
 .footnav a{text-decoration:underline}
 .formbox{background:#fff;border:1px solid #f0dde3;border-radius:12px;padding:14px;max-width:680px;margin:0 auto}
 .formbox iframe{width:100%;border:0;min-height:640px}
+.column-promo{background:linear-gradient(135deg,#fff0f5,#ffe3ee);border:2px solid #f7c6d4;border-radius:16px;padding:20px 24px;margin:22px 0 10px}
+.column-promo h2{font-size:1.6em;margin:0 0 6px;color:var(--pink-d)}
+.column-promo .lead{font-size:1.05em;font-weight:bold;margin:0 0 12px}
+.column-list{list-style:none;padding:0;margin:0 0 10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.column-list li{background:#fff;border-radius:10px;padding:8px 12px;border:1px solid #f4dce4}
+.column-list a{font-size:1.05em;font-weight:bold;text-decoration:none}
 """
 
 def esc(s): return html.escape(str(s or ""))
@@ -415,6 +421,10 @@ def main():
     min_cnt = int(sg.get("high_rating_min_count", 10))
     per_cat = int(sg.get("daily_pick_per_category", 5))
     top_pick_n = int(sg.get("daily_pick_top", 8))
+    column_count = min(int(sg.get("editorial_columns", 8)), len(by_kw))
+    column_links = "".join(
+        f'<li><a href="articles/column-{i:02d}.html">{esc(kw)}の選び方</a></li>'
+        for i, (kw, _) in enumerate(by_kw.items(), 1) if i <= column_count)
 
     def high_pick(items, n):
         high = [p for p in items if (p.get("review_avg", 0) or 0) >= min_avg and (p.get("review_count", 0) or 0) >= min_cnt]
@@ -434,7 +444,14 @@ def main():
         sections.append(f"""<h2 class="sec">{esc(kw)} ピックアップ <a class="chip" href="cat-{i}.html">👑 ランキング・高評価ランダムを見る →</a></h2>
 <p class="note">★{min_avg}以上・レビュー{min_cnt}件以上の高評価から日替わりで{len(picks)}件表示 (詳しくは <a href="about.html">サイトについて →</a>)</p>
 <div class="cards">{''.join(card(p) for p in picks)}</div>""")
-    index_body = hero + f"""<div class="wrap"><h2 class="sec">悩み別に探す</h2><div class="chips">{chips}</div>
+    index_body = hero + f"""<div class="wrap">
+<section class="column-promo">
+<h2>📝 特集コラム｜失敗しないコスメの選び方</h2>
+<p class="lead">レビュー件数だけでは分からない、注目成分や肌質別の選び方を編集部がまとめました。</p>
+<ul class="column-list">{column_links}</ul>
+<p><a href="articles.html">→ すべての特集コラムを見る</a></p>
+</section>
+<h2 class="sec">悩み別に探す</h2><div class="chips">{chips}</div>
 <h2 class="sec">✨ 今日の高評価ピックアップ (日替わり)</h2>
 <p class="note">評価★{min_avg}以上の人気商品からランダム表示。毎日変わります。</p>
 <div class="cards">{''.join(card(p) for p in all_high)}</div>
