@@ -1,7 +1,9 @@
 name: daily-auto
 on:
-  schedule:
-    - cron: "0 21 * * *"  # JST 6:00 (UTC 21:00)
+  # GitHub無料枠の schedule が数時間遅れるため、毎朝の手動実行に変更 (2026-11-27)
+  # 再度自動化する場合は下のコメントを外す
+  # schedule:
+  #   - cron: "0 21 * * *"  # 旧: JST 6:00 (UTC 21:00)
   workflow_dispatch:
 permissions:
   contents: write

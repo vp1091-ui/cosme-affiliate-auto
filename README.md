@@ -6,7 +6,8 @@
 - 商品データ: 楽天市場API (無料) + Amazon PA-API (無料、無くても検索リンクで代替)
 - サイト生成: Python静的HTML → `public/` (サーバー代0円)
 - ホスティング: Cloudflare Pages / Vercel / GitHub Pages のいずれか無料枠
-- 自動更新: GitHub Actions cron 毎日6時 (無料) → `public/` を自動commit→ホスティングが自動再デプロイ
+- 更新: 毎朝、GitHub Actions を**手動実行** → `public/` を自動commit→Cloudflare Pages が自動再デプロイ
+  - 理由: GitHub無料枠の `schedule` が数時間遅れるため、cronはコメントアウト済み (2026-11-27)
 - ドメインのみ実費: 年1000円前後 (.com/.jpはCloudflare Registrarが安い) → 月1000円以内に収まる
 - SNS: `data/sns_queue/*.txt` を自動生成 → Gmailにコピペ用原稿を送信 → 手動でXに投稿 (アフィリ7件＋日常つぶやき2件/日)
 
@@ -33,7 +34,7 @@ py src/run_all.py
 ## 3. GitHub + 自動化
 1. GitHubで空リポジトリ作成 → このフォルダをpush
 2. Repo Settings > Secrets > Actions に `RAKUTEN_APP_ID` 等を登録
-3. `.github/workflows/daily.yml` が毎日自動実行。Actionsログで確認
+3. GitHubのリポジトリ → **Actions** タブ → 左の `daily-auto` → **「Run workflow」** を毎朝押す (ボタンは「Run workflow」の2つ目)。Actionsログで確認
 4. Cloudflare Pages: https://pages.cloudflare.com/ で「Gitリポジトリからデプロイ」→ ビルド出力 `public` を指定。独自ドメインを接続
 
 ## 4. 収益化のコツ

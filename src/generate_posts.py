@@ -32,7 +32,7 @@ def short_name(s: str, limit: int = 48) -> str:
     # 共通クリーナーで販促ノイズを除去してから短縮 (サイトと同じ表記に統一)
     return clean_product_name(clean(s), limit)
 
-ARTICLE_TPL = """# {kw} 比較 {ym}【自動更新】
+ARTICLE_TPL = """# {kw} 比較 {ym}【毎朝更新】
 
 PR: 本記事はアフィリエイト広告を利用しています。
 

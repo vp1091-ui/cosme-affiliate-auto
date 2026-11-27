@@ -358,7 +358,7 @@ def page(title, desc, body, extra_head="", canonical=""):
 <div class="wrap"><p class="pr">PR: 当サイトはアフィリエイト広告を利用しています。掲載価格・在庫は取得時点のもので変更される場合があります。化粧品の効果には個人差があります。</p></div>
 {body}
 {ad_block("article")}
-<footer><div class="wrap"><p>© {esc(SITE_NAME)} / 価格・レビューは毎日自動更新 (最終更新 {TODAY.isoformat()})</p>
+<footer><div class="wrap"><p>© {esc(SITE_NAME)} / 価格・レビューは毎朝更新 (最終更新 {TODAY.isoformat()})</p>
 <nav class="footnav"><a href="about.html">運営者情報</a><a href="privacy.html">プライバシーポリシー</a><a href="contact.html">お問い合わせ</a><a href="ranking.html">ランキング</a></nav>
 <p>運営: {esc(CFG['site'].get('operator',''))} ／ <a href="contact.html">お問い合わせはこちら</a></p>
 <p>効果・効能の断定的な表示はしていません。肌に合わない場合は使用を中止し専門医にご相談ください。</p></div></footer></body></html>"""
@@ -607,7 +607,7 @@ def main():
 <h1>💄 {esc(SITE_NAME)}</h1>
 <p>{esc(src_label)}の人気コスメをレビュー件数・評価・価格で自動比較</p>
 <p>全{len(products)}商品掲載中・口コミ合計{sum(p.get('review_count',0) for p in products):,}件を集計</p>
-<span class="date">📅 {YM}版・毎日6時自動更新</span><br>
+<span class="date">📅 {YM}版・毎朝更新</span><br>
 <span style="font-size:.9em"><a class="xlink" href="https://x.com/mitekosu" rel="noopener" target="_blank">𝕏 @mitekosuをフォロー</a> ｜ 初めての方は <a href="about.html" style="color:#fff;font-weight:bold">サイトについて →</a></span></div></div>"""
     # 代り映え対策: 高評価プールから日替わりランダム表示 (日付シードで日中は固定)
     import random as _random
@@ -683,7 +683,7 @@ def main():
     (OUT / "ranking.html").write_text(
         page(f"コスメ人気ランキング【{YM}版】レビュー件数順｜{SITE_NAME}",
              f"レビュー件数で集計したコスメランキングTOP{len(rank_sorted)}。{src_label}横断・毎日更新。",
-             f"""<div class="hero"><div class="wrap"><h1>👑 コスメ人気ランキング</h1><p>レビュー件数順・{YM}版・毎日自動更新</p><p style="font-size:.9em"><a href="about.html" style="color:#fff">集計方法はサイトについて →</a></p></div></div>
+             f"""<div class="hero"><div class="wrap"><h1>👑 コスメ人気ランキング</h1><p>レビュー件数順・{YM}版・毎朝更新</p><p style="font-size:.9em"><a href="about.html" style="color:#fff">集計方法はサイトについて →</a></p></div></div>
 <div class="wrap"><h2 class="sec">✨ 今日の高評価ランダム (日替わり)</h2><p class="note">★{min_avg}以上からランダムで表示。ランキング固定化による代り映えの無さを解消します。</p><div class="cards">{''.join(card(p) for p in rank_pick)}</div>
 <h2 class="sec">👑 総合ランキング TOP{len(rank_sorted)}</h2><div class="cards">{''.join(card(p, i+1) for i, p in enumerate(rank_sorted))}</div>
 <p><a href="articles.html">📝 特集コラム（選び方・注目成分・FAQ）はこちら →</a></p>
@@ -797,7 +797,7 @@ def main():
         f"サイトについて・運営者情報｜{SITE_NAME}",
         f"{SITE_NAME}のサイト概要・運営者情報。お問い合わせはサイト内のフォームから。",
         f"""<div class="wrap"><h1>サイトについて</h1>
-<p>{esc(SITE_NAME)}は、{esc(src_label)}の人気コスメをレビュー件数・評価・価格で自動比較するサイトです。毎日6時に自動更新しています。</p>
+<p>{esc(SITE_NAME)}は、{esc(src_label)}の人気コスメをレビュー件数・評価・価格で自動比較するサイトです。毎朝、手動で更新しています。</p>
 <h2 class="sec">選定・表示方法</h2>
 <ul><li>楽天市場API等から取得し、レビュー件数と評価を基準に掲載</li>
 <li>カテゴリページでは「目的別おすすめTOP3」「絞り込み・並び替え」「選び方ガイド・FAQ」を併載</li>
@@ -899,7 +899,7 @@ def main():
         sm += f"<url><loc>{canonical_url(f'{SITE_URL}/{u}')}</loc><lastmod>{TODAY.isoformat()}</lastmod></url>"
     sm += "</urlset>"
     (OUT / "sitemap.xml").write_text(sm, encoding="utf-8")
-    rss = f'<?xml version="1.0"?><rss version="2.0"><channel><title>{esc(SITE_NAME)}</title><link>{SITE_URL}</link><description>{esc(src_label)}コスメ毎日更新</description>'
+    rss = f'<?xml version="1.0"?><rss version="2.0"><channel><title>{esc(SITE_NAME)}</title><link>{SITE_URL}</link><description>{esc(src_label)}コスメ毎朝更新</description>'
     for p in top[:20]:
         link = canonical_url(f"{SITE_URL}/product-{p['id']}.html")
         rss += f"<item><title>{esc(display_name(p, 80))}</title><link>{link}</link><description>{esc(p.get('keyword',''))}</description></item>"
