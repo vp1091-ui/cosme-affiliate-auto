@@ -24,6 +24,26 @@ JST = datetime.timezone(datetime.timedelta(hours=9))
 TODAY = datetime.datetime.now(JST).date()  # runnerはUTCのためJSTに補正
 YM = TODAY.strftime("%Y年%m月")
 
+# 正規URL: https://mitekosu.com/... (wwwなし・.htmlなし)
+# ホスティング側で .html -> 拡張子なし の301が効いているため、それに合わせる
+def canonical_url(u):
+    s = str(u or "").strip()
+    s = re.sub(r"^http://", "https://", s)
+    s = re.sub(r"^https://www\.", "https://", s)
+    s = re.sub(r"\.html(?=$|[?#])", "", s)
+    if s.endswith("/index"):
+        s = s[:-6] + "/"
+    if not s.startswith("http"):
+        s = SITE_URL + "/" + s.lstrip("/")
+    return s
+
+
+def pretty_links(body):
+    """内部リンクの .html を除去し index.html は / に統一"""
+    body = re.sub(r'href="index\.html"', 'href="/"', body)
+    body = re.sub(r'href="([^"#?]+)\.html"', r'href="\1"', body)
+    return body
+
 CSS = """
 :root{--pink:#e91e63;--pink-d:#c2185b;--bg:#fff5f7;--ink:#4a3340;--mut:#98707f;--gold:#f5a623}
 *{box-sizing:border-box}body{font-family:'Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;margin:0;color:var(--ink);background:#fff;line-height:1.8}
@@ -214,7 +234,7 @@ def display_name(p, limit=46):
 
 
 def jsonld_breadcrumb(items):
-    els = [{"@type": "ListItem", "position": i, "name": n, "item": u}
+    els = [{"@type": "ListItem", "position": i, "name": n, "item": canonical_url(u)}
            for i, (n, u) in enumerate(items, 1)]
     return '<script type="application/ld+json">' + json.dumps(
         {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": els},
@@ -240,6 +260,9 @@ def render_guide(kw):
 <h3>失敗しない選び方ガイド</h3><p class="lead">{esc(g['lead'])}</p><ol>{tips}</ol>
 <h3>注目成分の解説</h3><ul>{ing}</ul>
 <h3>肌質・悩み別のおすすめタイプ診断</h3><ul>{types}</ul>
+<h3>よくある失敗例</h3>
+<ul><li><strong>レビュー件数だけで決めてしまう</strong>：{esc(g['label'])}は肌質や使い方によって満足度が割れやすく、件数の多さだけでは自分の相性は分かりません。低評価の理由まで目を通すのが先決です。</li>
+<li><strong>成分の名前だけを見て買う</strong>：{esc(g['tips'][0][0])}という視点も、{esc(g['label'])}選びでは見落とされがちです。配合のバランスと普段の使い方を合わせて考えてください。</li></ul>
 <h3>よくある質問（FAQ）</h3><div class="faq">{faq}</div>
 </section>"""
     return html, g["faq"]
@@ -316,18 +339,20 @@ def card(p, i=None):
 <div>{price}</div><div class="note">{esc(p.get('shop',''))}</div>{btns(p)}</div>"""
 
 def page(title, desc, body, extra_head="", canonical=""):
-    canon = f'<link rel="canonical" href="{esc(canonical)}">' if canonical else ""
+    canon_url = canonical_url(canonical) if canonical else ""
+    canon = f'<link rel="canonical" href="{esc(canon_url)}">' if canon_url else ""
+    body = pretty_links(body)
     ads_cfg = CFG.get("ads", {})
     ad_head = ""
     if ads_cfg.get("adsense_client"):
         ad_head = f'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={esc(ads_cfg["adsense_client"])}" crossorigin="anonymous"></script>'
-    return f"""<!doctype html><html lang="ja"><head><meta charset="utf-8">
+    html_out = f"""<!doctype html><html lang="ja"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <meta property="og:type" content="website"><meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">
-<meta property="og:url" content="{esc(canonical)}"><meta property="og:site_name" content="{esc(SITE_NAME)}">
+<meta property="og:url" content="{esc(canon_url)}"><meta property="og:site_name" content="{esc(SITE_NAME)}">
 {canon}{ad_head}{extra_head}<style>{CSS}</style></head><body>
 <nav class="top"><div class="wrap"><a href="index.html">🏠 トップ</a><a href="ranking.html">👑 ランキング</a><a href="daily.html">📌 今日のピックアップ</a><a href="about.html">ℹ️ 運営者情報</a><a href="contact.html">✉️ お問い合わせ</a><a href="privacy.html">🔒 プライバシー</a></div></nav>
 <div class="wrap"><p class="pr">PR: 当サイトはアフィリエイト広告を利用しています。掲載価格・在庫は取得時点のもので変更される場合があります。化粧品の効果には個人差があります。</p></div>
@@ -335,8 +360,9 @@ def page(title, desc, body, extra_head="", canonical=""):
 {ad_block("article")}
 <footer><div class="wrap"><p>© {esc(SITE_NAME)} / 価格・レビューは毎日自動更新 (最終更新 {TODAY.isoformat()})</p>
 <nav class="footnav"><a href="about.html">運営者情報</a><a href="privacy.html">プライバシーポリシー</a><a href="contact.html">お問い合わせ</a><a href="ranking.html">ランキング</a></nav>
-<p>運営: {esc(CFG['site'].get('operator',''))} ／ {esc(CFG['site'].get('contact',''))}</p>
+<p>運営: {esc(CFG['site'].get('operator',''))} ／ <a href="contact.html">お問い合わせはこちら</a></p>
 <p>効果・効能の断定的な表示はしていません。肌に合わない場合は使用を中止し専門医にご相談ください。</p></div></footer></body></html>"""
+    return pretty_links(html_out)
 
 def ad_block(kind):
     """表示課金広告枠。ID未設定なら何も出さない"""
@@ -352,8 +378,49 @@ def ad_block(kind):
 def jsonld_itemlist(items, url):
     els = []
     for i, p in enumerate(items[:20], 1):
-        els.append({"@type": "ListItem", "position": i, "url": f"{url}/product-{p['id']}.html", "name": display_name(p, 80)})
+        els.append({"@type": "ListItem", "position": i, "url": canonical_url(f"{url}/product-{p['id']}.html"), "name": display_name(p, 80)})
     return '<script type="application/ld+json">' + json.dumps({"@context": "https://schema.org", "@type": "ItemList", "itemListElement": els}, ensure_ascii=False) + "</script>"
+
+def product_advice(p):
+    """商品データから文章を組み立て、ページごとに異なる選び方を出す。"""
+    rc = int(_num(p.get("review_count")) or 0)
+    avg = float(_num(p.get("review_avg")) or 0)
+    price = int(_num(p.get("price")) or 0)
+    g = guide_for(p.get("keyword", ""))
+
+    if rc >= 3000:
+        r_text = f"レビューが{rc:,}件と非常に多く、高評価・低評価の両方の傾向を読み取りやすい商品です。"
+    elif rc >= 300:
+        r_text = f"レビューは{rc:,}件。同じカテゴリの中でも判断材料として十分な水準といえます。"
+    elif rc >= 50:
+        r_text = f"レビューは{rc:,}件。口コミがまだ増えている段階なので、低評価の理由まで確認してから選びたい商品です。"
+    else:
+        r_text = f"レビューは{rc:,}件と件数が限られるため、成分表示と自分の肌質を優先して判断するのが安心です。"
+
+    if avg >= 4.5:
+        a_text = f"評価★{avg}は高く、使った人の満足度が比較的一致している傾向が読み取れます。"
+    elif avg >= 4.0:
+        a_text = f"評価は★{avg}。レビュー件数と合わせて見ると、価格帯に対する満足度の目安になります。"
+    else:
+        a_text = f"評価は★{avg}。評価の分布を確認し、自分の重視するポイントと合うかを見極めたい商品です。"
+
+    if 0 < price <= 2000:
+        p_text = f"参考価格{price:,}円は2,000円以下のプチプラ帯。気軽に試しやすい一方、容量とのバランスも比べたいポイントです。"
+    elif 0 < price <= 5000:
+        p_text = f"参考価格{price:,}円は手が届きやすい価格帯。同カテゴリの他商品と容量あたり価格を比べると選びやすくなります。"
+    elif 0 < price <= 10000:
+        p_text = f"参考価格{price:,}円のミドルレンジ。継続して使う前提で、使い切りやすさも確認したい価格帯です。"
+    elif price > 10000:
+        p_text = f"参考価格{price:,}円。まとめ買いや詰め替えの有無を含め、1回あたりのコストで比較するのがおすすめです。"
+    else:
+        p_text = "価格は取得時点で確認できなかったため、リンク先で最新の価格をご確認ください。"
+
+    tip = g["tips"][0]
+    ing = g["ingredients"][0]
+    return (f"<p>{esc(r_text)}</p><p>{esc(a_text)}</p><p>{esc(p_text)}</p>"
+            f"<ul><li><strong>{esc(tip[0])}</strong>：{esc(tip[1])}</li>"
+            f"<li><strong>{esc(ing[0])}</strong>：{esc(ing[1])}</li></ul>")
+
 
 def detail(p, src_label, related, rank_in_cat=0, cat_total=0):
     price = f'{p["price"]:,}円' if p.get("price") else "価格はリンク先で確認"
@@ -362,6 +429,7 @@ def detail(p, src_label, related, rank_in_cat=0, cat_total=0):
     lk = p.get("links", {}).get("rakuten") or (p.get("url", "") if p.get("source") == "rakuten" else "")
     review_btn = f'<a class="btn r" href="{esc(lk)}" rel="nofollow sponsored noopener" target="_blank">楽天で口コミ・レビューを見る</a>' if lk else ""
     ld = {"@context": "https://schema.org", "@type": "Product", "name": display_name(p, 100),
+          "url": canonical_url(f"{SITE_URL}/product-{p['id']}.html"),
           "image": p.get("image", ""), "description": (p.get("caption") or "")[:200],
           "offers": {"@type": "Offer", "priceCurrency": "JPY", "price": p.get("price", 0), "availability": "https://schema.org/InStock"}}
     try:
@@ -381,9 +449,8 @@ def detail(p, src_label, related, rank_in_cat=0, cat_total=0):
 <div class="cta">{review_btn}<p class="note">良い評価・厳しい評価の内訳は、楽天のレビュー欄 (高評価順・低評価順に並替可) で確認できます</p></div>
 <h2 class="sec">ショップによる商品説明</h2><p>{esc(desc) if desc else '商品説明はリンク先の販売ページでご確認ください。'}</p>
 <p class="note">出典: 販売店の掲載文を自動引用 (薬機法に配慮し一部言い換えあり)</p>
-<h2 class="sec">失敗しない選び方</h2>
-<ul><li>{esc(cat_tip(p.get('keyword','')))}</li>
-<li>肌質・成分表示を確認し、初めてはパッチテストを</li><li>レビューは件数と低評価理由の両方をチェック</li></ul>
+<h2 class="sec">この商品を選ぶときのチェックポイント</h2>
+{product_advice(p)}
 <h2 class="sec">同じ悩みの人気商品</h2><div class="cards">{rel}</div></div>"""
     head = '<script type="application/ld+json">' + json.dumps(ld, ensure_ascii=False) + "</script>"
     return page(f"{display_name(p, 44)}の口コミ・最安値 | {SITE_NAME}",
@@ -498,6 +565,7 @@ def daily_article(p, all_products, cat_index, idx=1):
 <p><a href="daily.html">← 今日のピックアップ一覧へ</a> ｜ <a href="index.html">トップへ</a></p>
 </div>"""
     ld = {"@context": "https://schema.org", "@type": "Product", "name": name,
+          "url": canonical_url(f"{SITE_URL}/daily/{TODAY.isoformat()}-{idx}.html"),
           "image": p.get("image", ""), "description": caption[:200],
           "offers": {"@type": "Offer", "priceCurrency": "JPY", "price": price,
                      "availability": "https://schema.org/InStock"}}
@@ -828,12 +896,13 @@ def main():
             + [f"product-{p['id']}.html" for p in products])
     sm = '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
     for u in urls:
-        sm += f"<url><loc>{SITE_URL}/{u}</loc><lastmod>{TODAY.isoformat()}</lastmod></url>"
+        sm += f"<url><loc>{canonical_url(f'{SITE_URL}/{u}')}</loc><lastmod>{TODAY.isoformat()}</lastmod></url>"
     sm += "</urlset>"
     (OUT / "sitemap.xml").write_text(sm, encoding="utf-8")
     rss = f'<?xml version="1.0"?><rss version="2.0"><channel><title>{esc(SITE_NAME)}</title><link>{SITE_URL}</link><description>{esc(src_label)}コスメ毎日更新</description>'
     for p in top[:20]:
-        rss += f"<item><title>{esc(display_name(p, 80))}</title><link>{SITE_URL}/product-{p['id']}.html</link><description>{esc(p.get('keyword',''))}</description></item>"
+        link = canonical_url(f"{SITE_URL}/product-{p['id']}.html")
+        rss += f"<item><title>{esc(display_name(p, 80))}</title><link>{link}</link><description>{esc(p.get('keyword',''))}</description></item>"
     rss += "</channel></rss>"
     (OUT / "rss.xml").write_text(rss, encoding="utf-8")
     (OUT / "robots.txt").write_text(f"User-agent: *\nAllow: /\nSitemap: {SITE_URL}/sitemap.xml\n", encoding="utf-8")

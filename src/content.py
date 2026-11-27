@@ -28,9 +28,29 @@ NOISE_PATTERNS = [
     re.compile(r"[＼\\/][^＼\\/]{0,40}?(?:ポイント|OFF|還元|お得|限定)[^＼\\/]{0,40}?[＼\\/]", re.I),
     re.compile(r"\d+\s*[％%]?\s*ポイント(?:還元|バック)|ポイント(?:最大)?\s*\d+\s*倍(?:以上)?", re.I),
     re.compile(r"期間限定|数量限定|送料無料|送料込|クーポン|セール|SALE|特価|激安|格安|キャンペーン|当店|全品|税込|税抜|即日出荷|当日出荷|楽天市場|公式|正規品", re.I),
-    re.compile(r"^(?:【[^】]*】|\[[^\]]*\])(?=\S)"),
-    re.compile(r"^[＼\\/｜|・★☆\s]+|[＼/｜|・\s]+$"),
+    # 日時レンジ (11/19 20:00~11/25 23:59 / 11/19(木)20:00〜11/25(水)1:59まで など)
+    re.compile(r"\d{1,2}\s*[/-]\s*\d{1,2}[^\n]{0,60}?まで"),
+    re.compile(r"\d{1,2}\s*[/-]\s*\d{1,2}\s*\d{1,2}:\d{2}\s*[~〜～ー－-]\s*"
+               r"\d{1,2}\s*[/-]\s*\d{1,2}(?:\s*\d{1,2}:\d{2})?"),
+    re.compile(r"\d{1,2}\s*[/-]\s*\d{1,2}\s*\d{1,2}:\d{2}(?:\s*[~〜～ー－-]\s*\d{1,2}:\d{2})?"),
+    # 装飾: ★...★ / ※... / 全角角括弧
+    re.compile(r"★[^★]{0,30}★"),
+    re.compile(r"※[^\s　]{0,40}"),
+    re.compile(r"［[^］]{0,80}?(?:" + _PROMO_BLOCK + r")[^］]{0,80}?］", re.I),
+    re.compile(r"^(?:【[^】]*】|\[[^\]]*\]|［[^］]*］)(?=\S)"),
+    re.compile(r"^[＼\\/｜|・★☆※\s]+|[＼/｜|・※\s]+$"),
 ]
+
+
+def _truncate(s, limit):
+    """単語の途中で切らないように、可能な限り直近の空白で改行的に切る。"""
+    if not limit or len(s) <= limit:
+        return s
+    cut = s[:limit]
+    sp = max(cut.rfind(" "), cut.rfind("　"))
+    if sp >= limit * 0.6:
+        return cut[:sp].rstrip(" 　、。|/｜") + "…"
+    return cut.rstrip(" 　、。|/｜") + "…"
 
 
 def clean_product_name(name, limit=None):
@@ -42,13 +62,12 @@ def clean_product_name(name, limit=None):
     s = str(name or "")
     for pat in NOISE_PATTERNS:
         s = pat.sub(" ", s)
-    # 残った【】は型番・容量などの情報なので中身だけ残す
-    s = s.replace("【", " ").replace("】", " ")
-    s = re.sub(r"\s+", " ", s).strip(" 　-–—/|｜・／＼")
+    # 残った括弧は型番・容量などの情報なので中身だけ残す
+    for a, b in (("【", "】"), ("［", "］"), ("[", "]"), ("（", "）"), ("(", ")")):
+        s = s.replace(a, " ").replace(b, " ")
+    s = re.sub(r"\s+", " ", s).strip(" 　-–—/|｜・／＼※")
     s = re.sub(r"([☆★])\1{2,}", r"\1\1", s)
-    if limit and len(s) > limit:
-        s = s[:limit].rstrip(" 　、。") + "…"
-    return s
+    return _truncate(s, limit)
 
 
 # ===== カテゴリ別 独自コンテンツ =====

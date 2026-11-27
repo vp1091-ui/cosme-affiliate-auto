@@ -4,7 +4,7 @@ site:
   description: "人気コスメをレビュー件数・評価・価格で自動比較。毎日更新。"
   affiliate_note: "当サイトはアフィリエイト広告を利用しています。"
   operator: "みてコス運営"
-  contact: "お問い合わせはX(@mitekosu)DMまで"
+  contact: "お問い合わせはサイト内フォーム（contact.html）から"
   # Googleフォームの「埋め込み用URL」を設定すると contact.html にフォームが埋め込まれる
   # 例: https://docs.google.com/forms/d/e/1FAIpQLSxxxxx/viewform?embedded=true
   contact_form_url: "https://docs.google.com/forms/d/e/1FAIpQLSdp85o6JUXjSgb42Ha2B8pY3E5Q7Ya5kfHRpz8zORqwZRHLVg/viewform?embedded=true"

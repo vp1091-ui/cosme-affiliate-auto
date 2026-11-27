@@ -1,12 +1,27 @@
 # URL正規化（www / http の混在防止）設定手順
 
-各ページには `generate_site.py` の `page()` が **canonical タグ**を出力しています。
+## 正規URLのルール（2026-11-27 統一）
+
+**正規形: `https://mitekosu.com/...`（wwwなし・`.html`なし）**
+
+`generate_site.py` の `canonical_url()` が全ページの canonical / og:url / 構造化データ / sitemap / RSS をこの形に統一します。
 
 ```html
-<link rel="canonical" href="https://mitekosu.com/cat-0.html">
+<link rel="canonical" href="https://mitekosu.com/cat-0">
 ```
 
+内部リンクも `pretty_links()` で `.html` を除去し、`index.html` は `/` に統一しています。  
+ホスティング側で `.html` → 拡張子なし の301が既に効いているため、その形式に合わせています。
+
 `config.yaml` の `site.url` を変更すれば、全ページの canonical / og:url / sitemap に反映されます。
+
+### www からのリダイレクト（未設定なら設定してください）
+
+`https://www.mitekosu.com/` は現在200を返すため、以下の Redirect Rule を追加してください。
+
+- Rules → Redirect Rules → Create rule
+- When: `Hostname` `equals` `www.mitekosu.com`
+- Then: `Redirect` / `301` / `https://mitekosu.com%{uri}`
 
 加えて、サーバー側で 301 リダイレクトを設定してください。以下は環境別の手順です。
 
